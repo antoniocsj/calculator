@@ -1,194 +1,172 @@
-import 'dart:math';
-import 'package:complex/complex.dart';
-import 'enums.dart';
+import 'package:calculator/enums.dart';
+import 'package:calculator/mpc_bindings.dart';
 
-typedef BitwiseFunc = int Function(int v1, int v2);
+
 
 class Number {
-  late Complex num;
+  static int precision = 1000;
   static String? error;
 
-  Number() : num = Complex(0, 0);
+  Complex num;
 
   Number.integer(int real, [int imag = 0]) {
-    num = Complex(real.toDouble(), imag.toDouble());
+    num = Complex.fromInt(real, imag);
   }
 
   Number.unsignedInteger(int real, [int imag = 0]) {
-    num = Complex(real.toDouble(), imag.toDouble());
+    num = Complex.fromUnsignedInt(real, imag);
   }
 
   Number.fraction(int numerator, int denominator) {
     if (denominator < 0) {
-      numerator = -numerator;
-      denominator = -denominator;
+      // Handle negative denominator
     }
-    num = Complex(numerator.toDouble(), 0);
-    if (denominator != 1) {
-      num = num / Complex(denominator.toDouble(), 0);
-    }
+    num = Complex.fromFraction(numerator, denominator);
   }
 
-  Number.double(double real, [double imag = 0]) : num = Complex(0, 0) {
-    num = Complex(real, imag);
+  Number.mpreal(MPFRReal real, [MPFRReal? imag]) {
+    num = Complex.fromMPReal(real, imag);
   }
 
-  Number.complex(Number r, Number i) : num = Complex(0, 0) {
-    num = Complex(r.num.real, i.num.real);
+  Number.double(double real, [double imag = 0]) {
+    num = Complex.fromDouble(real, imag);
   }
 
-  Number.polar(Number r, Number theta, [AngleUnit unit = AngleUnit.radians]) : num = Complex(0, 0) {
+  Number.complex(Number r, Number i) {
+    num = Complex.fromComplex(r.num, i.num);
+  }
+
+  Number.polar(Number r, Number theta, [AngleUnit unit = AngleUnit.radians]) {
     var x = theta.cos(unit);
     var y = theta.sin(unit);
-    num = Complex(x.num.real, y.num.real);
-    num = num * r.num;
+    num = Complex.fromPolar(x.multiply(r), y.multiply(r));
   }
 
-  Number.eulers() : num = Complex(0, 0) {
-    num = Complex(2.718281828459045, 0);
+  Number.eulers() {
+    num = Complex.eulers();
   }
 
-  Number.i() : num = Complex(0, 0) {
-    num = Complex(0, 1);
+  Number.i() {
+    num = Complex.i();
   }
 
-  Number.pi() : num = Complex(0, 0) {
-    num = Complex(3.141592653589793, 0);
+  Number.pi() {
+    num = Complex.pi();
   }
 
-  Number.tau() : num = Complex(0, 0) {
-    num = Complex(6.283185307179586, 0);
+  Number.tau() {
+    num = Complex.tau();
   }
 
-  Number.random() : num = Complex(0, 0) {
-    // this.double(Random().nextDouble());
-    num = Complex(Random().nextDouble(), 0);
+  Number.random() {
+    num = Complex.random();
   }
 
   int toInteger() {
-    return num.real.toInt();
+    return num.toInteger();
   }
 
   int toUnsignedInteger() {
-    return num.real.toInt();
+    return num.toUnsignedInteger();
   }
 
   double toFloat() {
-    return num.real;
+    return num.toFloat();
   }
 
   double toDouble() {
-    return num.real;
+    return num.toDouble();
   }
 
   bool isZero() {
-    return num.real == 0 && num.imaginary == 0;
+    return num.isZero();
   }
 
   bool isNegative() {
-    return num.real < 0;
+    return num.isNegative();
   }
 
   bool isInteger() {
-    if (isComplex()) return false;
-    return num.real == num.real.toInt();
+    return num.isInteger();
   }
 
   bool isPositiveInteger() {
-    if (isComplex()) return false;
-    return num.real >= 0 && isInteger();
+    return num.isPositiveInteger();
   }
 
   bool isNatural() {
-    if (isComplex()) return false;
-    // return num.getReal().val.isNatural() != 0;
-    return num.real >= 0 && isInteger();
+    return num.isNatural();
   }
 
   bool isComplex() {
-    // return !num.getImag().val.isZero();
-    return num.imaginary != 0;
+    return num.isComplex();
   }
 
-  // Return error if overflow or underflow
-  void checkFlags() {
-    if (num.isInfinite) {
-      error = 'Infinity';
-    }
-    else if (num.isNaN) {
-      error = 'NaN';
+  static void checkFlags() {
+    if (MPFR.isUnderflow()) {
+      // Handle underflow
+    } else if (MPFR.isOverflow()) {
+      // Handle overflow
     }
   }
 
   bool equals(Number y) {
-    return num == y.num;
+    return num.equals(y.num);
   }
 
   int compare(Number y) {
-    return num.getReal().val.cmp(y.num.getReal().val);
+    return num.compare(y.num);
   }
 
   Number sgn() {
-    var z = Number.integer(num.getReal().val.sgn());
-    return z;
+    return Number.integer(num.sgn());
   }
 
   Number invertSign() {
     var z = Number();
-    z.num.neg(num);
+    z.num = num.invertSign();
     return z;
   }
 
   Number abs() {
     var z = Number();
-    z.num.getImag().val.setZero();
-    MPC.abs(z.num.getReal().val, num);
+    z.num = num.abs();
     return z;
   }
 
   Number arg([AngleUnit unit = AngleUnit.radians]) {
-    if (isZero()) {
-      // Handle zero
-    }
     var z = Number();
-    z.num.getImag().val.setZero();
-    MPC.arg(z.num.getReal().val, num);
-    mpcFromRadians(z.num, z.num, unit);
-    if (!isComplex() && isNegative()) {
-      // Handle negative real numbers
-    }
+    z.num = num.arg(unit);
     return z;
   }
 
   Number conjugate() {
     var z = Number();
-    z.num.conj(num);
+    z.num = num.conjugate();
     return z;
   }
 
   Number realComponent() {
     var z = Number();
-    z.num.setMpreal(num.getReal().val);
+    z.num = num.realComponent();
     return z;
   }
 
   Number imaginaryComponent() {
     var z = Number();
-    z.num.setMpreal(num.getImag().val);
+    z.num = num.imaginaryComponent();
     return z;
   }
 
   Number integerComponent() {
     var z = Number();
-    z.num.getImag().val.setZero();
-    z.num.getReal().val.trunc(num.getReal().val);
+    z.num = num.integerComponent();
     return z;
   }
 
   Number fractionalComponent() {
     var z = Number();
-    z.num.getImag().val.setZero();
-    z.num.getReal().val.frac(num.getReal().val);
+    z.num = num.fractionalComponent();
     return z;
   }
 
@@ -198,79 +176,49 @@ class Number {
 
   Number floor() {
     var z = Number();
-    z.num.getImag().val.setZero();
-    z.num.getReal().val.floor(num.getReal().val);
+    z.num = num.floor();
     return z;
   }
 
   Number ceiling() {
     var z = Number();
-    z.num.getImag().val.setZero();
-    z.num.getReal().val.ceil(num.getReal().val);
+    z.num = num.ceiling();
     return z;
   }
 
   Number round() {
     var z = Number();
-    z.num.getImag().val.setZero();
-    z.num.getReal().val.round(num.getReal().val);
+    z.num = num.round();
     return z;
   }
 
   Number reciprocal() {
     var z = Number();
-    z.num.setSignedInteger(1);
-    z.num.mprealDivide(z.num.getReal().val, num);
+    z.num = num.reciprocal();
     return z;
   }
 
   Number epowy() {
     var z = Number();
-    z.num.exp(num);
+    z.num = num.epowy();
     return z;
   }
 
   Number xpowy(Number y) {
-    if (isZero() && y.isNegative()) {
-      // Handle 0^-n
-    }
-    if (isZero() && y.isZero()) {
-      // Handle 0^0
-    }
-    if (!isComplex() && !y.isComplex() && !y.isInteger()) {
-      // Handle non-integer exponent
-    }
     var z = Number();
-    z.num.power(num, y.num);
+    z.num = num.xpowy(y.num);
     return z;
   }
 
   Number xpowyInteger(int n) {
-    if (isZero() && n < 0) {
-      // Handle 0^-n
-    }
-    if (isZero() && n == 0) {
-      // Handle 0^0
-    }
     var z = Number();
-    z.num.powerInteger(num, n);
+    z.num = num.xpowyInteger(n);
     return z;
   }
 
   Number root(int n) {
     var z = Number();
-    if (n < 0) {
-      // Handle negative root
-    } else if (n > 0) {
-      // Handle positive root
-    } else {
-      // Handle zero root
-    }
-    if (!isComplex() && (!isNegative() || (n & 1) == 1)) {
-      z.num.getImag().val.setZero();
-    } else {
-      // Handle complex root
-    }
+    z.num = num.root(n);
     return z;
   }
 
@@ -279,68 +227,50 @@ class Number {
   }
 
   Number ln() {
-    if (isZero()) {
-      // Handle ln(0)
-    }
     var z = Number();
-    z.num.log(num);
-    if (!isComplex() && isNegative()) {
-      // Handle negative real numbers
-    }
+    z.num = num.ln();
     return z;
   }
 
   Number logarithm(int n) {
-    if (isZero()) {
-      // Handle log(0)
-    }
-    var t1 = Number.integer(n);
-    return ln().divide(t1.ln());
+    var z = Number();
+    z.num = num.logarithm(n);
+    return z;
   }
 
   Number factorial() {
-    if (isZero()) return Number.integer(1);
-    if (!isNatural()) {
-      // Handle non-natural number
-    }
-    var value = toInteger();
-    var z = this;
-    for (var i = 2; i < value; i++) {
-      // Handle factorial calculation
-    }
+    var z = Number();
+    z.num = num.factorial();
     return z;
   }
 
   Number add(Number y) {
     var z = Number();
-    z.num.add(num, y.num);
+    z.num = num.add(y.num);
     return z;
   }
 
   Number subtract(Number y) {
     var z = Number();
-    z.num.subtract(num, y.num);
+    z.num = num.subtract(y.num);
     return z;
   }
 
   Number multiply(Number y) {
     var z = Number();
-    z.num.multiply(num, y.num);
+    z.num = num.multiply(y.num);
     return z;
   }
 
   Number multiplyInteger(int y) {
     var z = Number();
-    z.num.multiplySignedInteger(num, y);
+    z.num = num.multiplyInteger(y);
     return z;
   }
 
   Number divide(Number y) {
-    if (y.isZero()) {
-      // Handle division by zero
-    }
     var z = Number();
-    z.num.divide(num, y.num);
+    z.num = num.divide(y.num);
     return z;
   }
 
@@ -349,141 +279,198 @@ class Number {
   }
 
   Number modulusDivide(Number y) {
-    if (!isInteger() || !y.isInteger()) {
-      // Handle non-integer modulus
-    }
-    var t1 = divide(y).floor();
-    var t2 = t1.multiply(y);
-    var z = subtract(t2);
-    t1 = Number.integer(0);
+    var z = Number();
+    z.num = num.modulusDivide(y.num);
     return z;
   }
 
   Number modularExponentiation(Number exp, Number mod) {
-    // Handle modular exponentiation
+    var z = Number();
+    z.num = num.modularExponentiation(exp.num, mod.num);
+    return z;
   }
 
   Number sin([AngleUnit unit = AngleUnit.radians]) {
-    // Handle sine calculation
+    var z = Number();
+    z.num = num.sin(unit);
+    return z;
   }
 
   Number cos([AngleUnit unit = AngleUnit.radians]) {
-    // Handle cosine calculation
+    var z = Number();
+    z.num = num.cos(unit);
+    return z;
   }
 
   Number tan([AngleUnit unit = AngleUnit.radians]) {
-    // Handle tangent calculation
+    var z = Number();
+    z.num = num.tan(unit);
+    return z;
   }
 
   Number asin([AngleUnit unit = AngleUnit.radians]) {
-    // Handle arcsine calculation
+    var z = Number();
+    z.num = num.asin(unit);
+    return z;
   }
 
   Number acos([AngleUnit unit = AngleUnit.radians]) {
-    // Handle arccosine calculation
+    var z = Number();
+    z.num = num.acos(unit);
+    return z;
   }
 
   Number atan([AngleUnit unit = AngleUnit.radians]) {
-    // Handle arctangent calculation
+    var z = Number();
+    z.num = num.atan(unit);
+    return z;
   }
 
   Number sinh() {
-    // Handle hyperbolic sine calculation
+    var z = Number();
+    z.num = num.sinh();
+    return z;
   }
 
   Number cosh() {
-    // Handle hyperbolic cosine calculation
+    var z = Number();
+    z.num = num.cosh();
+    return z;
   }
 
   Number tanh() {
-    // Handle hyperbolic tangent calculation
+    var z = Number();
+    z.num = num.tanh();
+    return z;
   }
 
   Number asinh() {
-    // Handle inverse hyperbolic sine calculation
+    var z = Number();
+    z.num = num.asinh();
+    return z;
   }
 
   Number acosh() {
-    // Handle inverse hyperbolic cosine calculation
+    var z = Number();
+    z.num = num.acosh();
+    return z;
   }
 
   Number atanh() {
-    // Handle inverse hyperbolic tangent calculation
+    var z = Number();
+    z.num = num.atanh();
+    return z;
   }
 
   Number and(Number y) {
-    // Handle bitwise AND
+    var z = Number();
+    z.num = num.and(y.num);
+    return z;
   }
 
   Number or(Number y) {
-    // Handle bitwise OR
+    var z = Number();
+    z.num = num.or(y.num);
+    return z;
   }
 
   Number xor(Number y) {
-    // Handle bitwise XOR
+    var z = Number();
+    z.num = num.xor(y.num);
+    return z;
   }
 
   Number not(int wordlen) {
-    // Handle bitwise NOT
+    var z = Number();
+    z.num = num.not(wordlen);
+    return z;
   }
 
   Number mask(Number x, int wordlen) {
-    // Handle bitwise mask
+    var z = Number();
+    z.num = num.mask(x.num, wordlen);
+    return z;
   }
 
   Number shift(int count) {
-    // Handle bitwise shift
+    var z = Number();
+    z.num = num.shift(count);
+    return z;
   }
 
   Number onesComplement(int wordlen) {
-    // Handle ones complement
+    var z = Number();
+    z.num = num.onesComplement(wordlen);
+    return z;
   }
 
   Number twosComplement(int wordlen) {
-    // Handle twos complement
+    var z = Number();
+    z.num = num.twosComplement(wordlen);
+    return z;
   }
 
   bool isSprp(Number p, int b) {
-    // Handle strong probable prime test
+    return num.isSprp(p.num, b);
   }
 
   bool isPrime(Number x) {
-    // Handle prime test
+    return num.isPrime(x.num);
   }
 
-  List<Number?> factorize() {
-    // Handle factorization
+  List<Number> factorize() {
+    return num.factorize().map((e) => Number.fromComplex(e)).toList();
   }
 
-  List<Number?> factorizeUint64(int n) {
-    // Handle factorization of uint64
+  List<Number> factorizeUint64(int n) {
+    return num.factorizeUint64(n).map((e) => Number.fromComplex(e)).toList();
   }
 
   Number copy() {
-    // Handle copy
+    return Number.fromComplex(num.copy());
   }
 
   static void mpcFromRadians(Complex res, Complex op, AngleUnit unit) {
-    // Handle conversion from radians
+    Complex.mpcFromRadians(res, op, unit);
   }
 
   static void mpcToRadians(Complex res, Complex op, AngleUnit unit) {
-    // Handle conversion to radians
+    Complex.mpcToRadians(res, op, unit);
   }
 
   Number toRadians(AngleUnit unit) {
-    // Handle conversion to radians
+    return Number.fromComplex(num.toRadians(unit));
   }
 
   Number bitwise(Number y, BitwiseFunc bitwiseOperator, int wordlen) {
-    // Handle bitwise operation
+    return Number.fromComplex(num.bitwise(y.num, bitwiseOperator, wordlen));
   }
 
   int hexToInt(String digit) {
-    // Handle hex to int conversion
+    return num.hexToInt(digit);
   }
 
   String toHexString() {
-    // Handle conversion to hex string
+    return num.toHexString();
+  }
+
+  static int parseLiteralPrefix(String str, int prefixLen) {
+    return Number.parseLiteralPrefix(str, prefixLen);
+  }
+
+  Number? mpSetFromString(String str, [int defaultBase = 10, bool mayHavePrefix = true]) {
+    return Number.fromComplex(num.mpSetFromString(str, defaultBase, mayHavePrefix));
+  }
+
+  int charVal(String c, int numberBase) {
+    return num.charVal(c, numberBase);
+  }
+
+  Number? setFromSexagesimal(String str) {
+    return Number.fromComplex(num.setFromSexagesimal(str));
+  }
+
+  bool mpIsOverflow(Number x, int wordlen) {
+    return num.mpIsOverflow(x.num, wordlen);
   }
 }
