@@ -1,44 +1,44 @@
-import 'dart:ffi' as ffi;
+import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
-final class mpfr extends ffi.Struct {
-  @ffi.Long()
+final class mpfr extends Struct {
+  @Long()
   external int _mpfr_prec;
-  @ffi.Int()
+  @Int()
   external int _mpfr_sign;
-  @ffi.Long()
+  @Long()
   external int _mpfr_exp;
-  external ffi.Pointer<ffi.Uint64> _mpfr_d;
+  external Pointer<Uint64> _mpfr_d;
 }
 
 // Definindo a estrutura do número complexo
-final class ComplexNumber extends ffi.Struct {
+final class ComplexNumber extends Struct {
   external mpfr _mpfr_re;
   external mpfr _mpfr_im;
 }
 
 // Carregar a biblioteca MPC
-final ffi.DynamicLibrary mpcLib = ffi.DynamicLibrary.open('libmpc.so');
+final DynamicLibrary mpcLib = DynamicLibrary.open('libmpc.so');
 
 // Definir a função mpc_init2
-typedef mpc_init2_native = ffi.Void Function(ffi.Pointer<ComplexNumber>, ffi.Long);
-typedef mpc_init2_dart = void Function(ffi.Pointer<ComplexNumber>, int);
+typedef mpc_init2_native = Void Function(Pointer<ComplexNumber>, Long);
+typedef mpc_init2_dart = void Function(Pointer<ComplexNumber>, int);
 
 // Definir a função mpc_set_d_d
-typedef mpc_set_d_d_native = ffi.Int Function(ffi.Pointer<ComplexNumber>, ffi.Double, ffi.Double, ffi.Int);
-typedef mpc_set_d_d_dart = int Function(ffi.Pointer<ComplexNumber>, double, double, int);
+typedef mpc_set_d_d_native = Int Function(Pointer<ComplexNumber>, Double, Double, Int);
+typedef mpc_set_d_d_dart = int Function(Pointer<ComplexNumber>, double, double, int);
 
 // Definir a função mpc_add
-typedef mpc_add_native = ffi.Int Function(ffi.Pointer<ComplexNumber>, ffi.Pointer<ComplexNumber>, ffi.Pointer<ComplexNumber>, ffi.Int);
-typedef mpc_add_dart = int Function(ffi.Pointer<ComplexNumber>, ffi.Pointer<ComplexNumber>, ffi.Pointer<ComplexNumber>, int);
+typedef mpc_add_native = Int Function(Pointer<ComplexNumber>, Pointer<ComplexNumber>, Pointer<ComplexNumber>, Int);
+typedef mpc_add_dart = int Function(Pointer<ComplexNumber>, Pointer<ComplexNumber>, Pointer<ComplexNumber>, int);
 
 // Definir a função mpc_get_str
-typedef mpc_get_str_native = ffi.Pointer<Utf8> Function(ffi.Int, ffi.Size, ffi.Pointer<ComplexNumber>, ffi.Int);
-typedef mpc_get_str_dart = ffi.Pointer<Utf8> Function(int, int, ffi.Pointer<ComplexNumber>, int);
+typedef mpc_get_str_native = Pointer<Utf8> Function(Int, Size, Pointer<ComplexNumber>, Int);
+typedef mpc_get_str_dart = Pointer<Utf8> Function(int, int, Pointer<ComplexNumber>, int);
 
 // Definir a função mpc_clear
-typedef mpc_clear_native = ffi.Void Function(ffi.Pointer<ComplexNumber>);
-typedef mpc_clear_dart = void Function(ffi.Pointer<ComplexNumber>);
+typedef mpc_clear_native = Void Function(Pointer<ComplexNumber>);
+typedef mpc_clear_dart = void Function(Pointer<ComplexNumber>);
 
 // Funções nativas do MPC que serão utilizadas no Dart
 final mpc_init2_dart mpc_init2 = mpcLib.lookupFunction<mpc_init2_native, mpc_init2_dart>('mpc_init2');
@@ -48,9 +48,9 @@ final mpc_get_str_dart mpc_get_str = mpcLib.lookupFunction<mpc_get_str_native, m
 final mpc_clear_dart mpc_clear = mpcLib.lookupFunction<mpc_clear_native, mpc_clear_dart>('mpc_clear');
 
 // Função que cria um número complexo com precisão de 256 bits
-ffi.Pointer<ComplexNumber> createComplexNumber(double real, double imag) {
+Pointer<ComplexNumber> createComplexNumber(double real, double imag) {
   // Alocar memória para um número complexo
-  final ffi.Pointer<ComplexNumber> complexNumber = calloc<ComplexNumber>();
+  final Pointer<ComplexNumber> complexNumber = calloc<ComplexNumber>();
 
   // Inicializar o número complexo
   mpc_init2(complexNumber, 64);
@@ -63,9 +63,9 @@ ffi.Pointer<ComplexNumber> createComplexNumber(double real, double imag) {
 }
 
 // Função para somar dois números complexos
-ffi.Pointer<ComplexNumber> addComplexNumbers(ffi.Pointer<ComplexNumber> a, ffi.Pointer<ComplexNumber> b) {
+Pointer<ComplexNumber> addComplexNumbers(Pointer<ComplexNumber> a, Pointer<ComplexNumber> b) {
   // Alocar memória para um número complexo
-  final ffi.Pointer<ComplexNumber> result = calloc<ComplexNumber>();
+  final Pointer<ComplexNumber> result = calloc<ComplexNumber>();
 
   // Inicializar o número complexo
   mpc_init2(result, 64);
@@ -78,9 +78,9 @@ ffi.Pointer<ComplexNumber> addComplexNumbers(ffi.Pointer<ComplexNumber> a, ffi.P
 }
 
 // Função para imprimir um número complexo
-String printComplexNumber(ffi.Pointer<ComplexNumber> complexNumber) {
+String printComplexNumber(Pointer<ComplexNumber> complexNumber) {
   // Obter a representação em string do número complexo
-  final ffi.Pointer<Utf8> str = mpc_get_str(10, 2, complexNumber, 0);
+  final Pointer<Utf8> str = mpc_get_str(10, 2, complexNumber, 0);
 
   // Imprimir a representação em string do número complexo
   print(str.toDartString());

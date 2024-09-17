@@ -1,5 +1,5 @@
 import 'package:calculator/enums.dart';
-import 'package:calculator/mpc_bindings.dart';
+import 'package:calculator/mpc.dart';
 
 
 
@@ -7,7 +7,7 @@ class Number {
   static int precision = 1000;
   static String? error;
 
-  Complex num;
+  late Complex num;
 
   Number.integer(int real, [int imag = 0]) {
     num = Complex.fromInt(real, imag);
