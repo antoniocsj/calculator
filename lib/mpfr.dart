@@ -17,7 +17,7 @@ class Round {
 
 // Definição da estrutura Precision
 final class Precision extends Struct {
-  @Int32()
+  @Long()
   external int value;
 }
 
