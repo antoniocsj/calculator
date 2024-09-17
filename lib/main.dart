@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ffi' as ffi;
-import 'mpc_bindings.dart';
+import 'mpc.dart';
 import 'package:ffi/ffi.dart';
 
 void main() {

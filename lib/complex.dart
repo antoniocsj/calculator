@@ -1,4 +1,4 @@
-import 'package:calculator/mpc_bindings.dart';
+import 'package:calculator/mpc.dart';
 
 class Complex {
 
