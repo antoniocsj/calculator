@@ -43,6 +43,11 @@ typedef mpfr_clear_native = Void Function(Pointer<mpfr_t>);
 typedef mpfr_clear_dart = void Function(Pointer<mpfr_t>);
 final mpfr_clear_dart mpfr_clear = mpfrLib.lookupFunction<mpfr_clear_native, mpfr_clear_dart>('mpfr_clear');
 
+// Definir a função mpfr_set
+typedef mpfr_set_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_set_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_set_dart mpfr_set = mpfrLib.lookupFunction<mpfr_set_native, mpfr_set_dart>('mpfr_set');
+
 // Definir a função mpfr_set_ui
 typedef mpfr_set_ui_native = Int Function(Pointer<mpfr_t>, UnsignedLong, Int);
 typedef mpfr_set_ui_dart = int Function(Pointer<mpfr_t>, int, int);
@@ -63,14 +68,9 @@ typedef mpfr_set_d_native = Int Function(Pointer<mpfr_t>, Double, Int);
 typedef mpfr_set_d_dart = int Function(Pointer<mpfr_t>, double, int);
 final mpfr_set_d_dart mpfr_set_d = mpfrLib.lookupFunction<mpfr_set_d_native, mpfr_set_d_dart>('mpfr_set_d');
 
-// Definir a função mpfr_set
-typedef mpfr_set_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
-typedef mpfr_set_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int);
-final mpfr_set_dart mpfr_set = mpfrLib.lookupFunction<mpfr_set_native, mpfr_set_dart>('mpfr_set');
-
 // Definir a função mpfr_set_zero
-typedef mpfr_set_zero_native = Int Function(Pointer<mpfr_t>, Int);
-typedef mpfr_set_zero_dart = int Function(Pointer<mpfr_t>, int);
+typedef mpfr_set_zero_native = Void Function(Pointer<mpfr_t>, Int);
+typedef mpfr_set_zero_dart = void Function(Pointer<mpfr_t>, int);
 final mpfr_set_zero_dart mpfr_set_zero = mpfrLib.lookupFunction<mpfr_set_zero_native, mpfr_set_zero_dart>('mpfr_set_zero');
 
 // Definir a função mpfr_add
@@ -93,32 +93,130 @@ typedef mpfr_add_d_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Doubl
 typedef mpfr_add_d_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, double, int);
 final mpfr_add_d_dart mpfr_add_d = mpfrLib.lookupFunction<mpfr_add_d_native, mpfr_add_d_dart>('mpfr_add_d');
 
-// Definir a função mpfr_add_z
-typedef mpfr_add_z_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
-typedef mpfr_add_z_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
-final mpfr_add_z_dart mpfr_add_z = mpfrLib.lookupFunction<mpfr_add_z_native, mpfr_add_z_dart>('mpfr_add_z');
-
-// Definir a função mpfr_add_q
-typedef mpfr_add_q_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
-typedef mpfr_add_q_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
-final mpfr_add_q_dart mpfr_add_q = mpfrLib.lookupFunction<mpfr_add_q_native, mpfr_add_q_dart>('mpfr_add_q');
-
-// contina aqui
-
 // Definir a função mpfr_sub
 typedef mpfr_sub_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
 typedef mpfr_sub_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
 final mpfr_sub_dart mpfr_sub = mpfrLib.lookupFunction<mpfr_sub_native, mpfr_sub_dart>('mpfr_sub');
+
+// Definir a função mpfr_sub_q
+typedef mpfr_sub_q_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_sub_q_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_sub_q_dart mpfr_sub_q = mpfrLib.lookupFunction<mpfr_sub_q_native, mpfr_sub_q_dart>('mpfr_sub_q');
+
+// Definir a função mpfr_sub_ui
+typedef mpfr_sub_ui_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, UnsignedLong, Int);
+typedef mpfr_sub_ui_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_sub_ui_dart mpfr_sub_ui = mpfrLib.lookupFunction<mpfr_sub_ui_native, mpfr_sub_ui_dart>('mpfr_sub_ui');
+
+// Definir a função mpfr_sub_si
+typedef mpfr_sub_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Long, Int);
+typedef mpfr_sub_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_sub_si_dart mpfr_sub_si = mpfrLib.lookupFunction<mpfr_sub_si_native, mpfr_sub_si_dart>('mpfr_sub_si');
+
+// Definir a função mpfr_sub_d
+typedef mpfr_sub_d_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Double, Int);
+typedef mpfr_sub_d_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, double, int);
+final mpfr_sub_d_dart mpfr_sub_d = mpfrLib.lookupFunction<mpfr_sub_d_native, mpfr_sub_d_dart>('mpfr_sub_d');
+
+// Definir a função mpfr_sub_z
+typedef mpfr_sub_z_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_sub_z_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_sub_z_dart mpfr_sub_z = mpfrLib.lookupFunction<mpfr_sub_z_native, mpfr_sub_z_dart>('mpfr_sub_z');
+
+// Definir a função mpfr_ui_sub
+typedef mpfr_ui_sub_native = Int Function(Pointer<mpfr_t>, UnsignedLong, Pointer<mpfr_t>, Int);
+typedef mpfr_ui_sub_dart = int Function(Pointer<mpfr_t>, int, Pointer<mpfr_t>, int);
+final mpfr_ui_sub_dart mpfr_ui_sub = mpfrLib.lookupFunction<mpfr_ui_sub_native, mpfr_ui_sub_dart>('mpfr_ui_sub');
+
+// Definir a função mpfr_si_sub
+typedef mpfr_si_sub_native = Int Function(Pointer<mpfr_t>, Long, Pointer<mpfr_t>, Int);
+typedef mpfr_si_sub_dart = int Function(Pointer<mpfr_t>, int, Pointer<mpfr_t>, int);
+final mpfr_si_sub_dart mpfr_si_sub = mpfrLib.lookupFunction<mpfr_si_sub_native, mpfr_si_sub_dart>('mpfr_si_sub');
+
+// Definir a função mpfr_d_sub
+typedef mpfr_d_sub_native = Int Function(Pointer<mpfr_t>, Double, Pointer<mpfr_t>, Int);
+typedef mpfr_d_sub_dart = int Function(Pointer<mpfr_t>, double, Pointer<mpfr_t>, int);
+final mpfr_d_sub_dart mpfr_d_sub = mpfrLib.lookupFunction<mpfr_d_sub_native, mpfr_d_sub_dart>('mpfr_d_sub');
+
+// Definir a função mpfr_z_sub
+typedef mpfr_z_sub_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_z_sub_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_z_sub_dart mpfr_z_sub = mpfrLib.lookupFunction<mpfr_z_sub_native, mpfr_z_sub_dart>('mpfr_z_sub');
 
 // Definir a função mpfr_mul
 typedef mpfr_mul_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
 typedef mpfr_mul_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
 final mpfr_mul_dart mpfr_mul = mpfrLib.lookupFunction<mpfr_mul_native, mpfr_mul_dart>('mpfr_mul');
 
+// Definir a função mpfr_mul_ui
+typedef mpfr_mul_ui_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, UnsignedLong, Int);
+typedef mpfr_mul_ui_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_mul_ui_dart mpfr_mul_ui = mpfrLib.lookupFunction<mpfr_mul_ui_native, mpfr_mul_ui_dart>('mpfr_mul_ui');
+
+// Definir a função mpfr_mul_si
+typedef mpfr_mul_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Long, Int);
+typedef mpfr_mul_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_mul_si_dart mpfr_mul_si = mpfrLib.lookupFunction<mpfr_mul_si_native, mpfr_mul_si_dart>('mpfr_mul_si');
+
+// Definir a função mpfr_mul_d
+typedef mpfr_mul_d_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Double, Int);
+typedef mpfr_mul_d_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, double, int);
+final mpfr_mul_d_dart mpfr_mul_d = mpfrLib.lookupFunction<mpfr_mul_d_native, mpfr_mul_d_dart>('mpfr_mul_d');
+
+// Definir a função mpfr_mul_z
+typedef mpfr_mul_z_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_mul_z_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_mul_z_dart mpfr_mul_z = mpfrLib.lookupFunction<mpfr_mul_z_native, mpfr_mul_z_dart>('mpfr_mul_z');
+
+// Definir a função mpfr_mul_q
+typedef mpfr_mul_q_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_mul_q_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_mul_q_dart mpfr_mul_q = mpfrLib.lookupFunction<mpfr_mul_q_native, mpfr_mul_q_dart>('mpfr_mul_q');
+
 // Definir a função mpfr_div
 typedef mpfr_div_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
 typedef mpfr_div_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
 final mpfr_div_dart mpfr_div = mpfrLib.lookupFunction<mpfr_div_native, mpfr_div_dart>('mpfr_div');
+
+// Definir a função mpfr_div_ui
+typedef mpfr_div_ui_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, UnsignedLong, Int);
+typedef mpfr_div_ui_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_div_ui_dart mpfr_div_ui = mpfrLib.lookupFunction<mpfr_div_ui_native, mpfr_div_ui_dart>('mpfr_div_ui');
+
+// Definir a função mpfr_div_si
+typedef mpfr_div_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Long, Int);
+typedef mpfr_div_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_div_si_dart mpfr_div_si = mpfrLib.lookupFunction<mpfr_div_si_native, mpfr_div_si_dart>('mpfr_div_si');
+
+// Definir a função mpfr_div_d
+typedef mpfr_div_d_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Double, Int);
+typedef mpfr_div_d_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, double, int);
+final mpfr_div_d_dart mpfr_div_d = mpfrLib.lookupFunction<mpfr_div_d_native, mpfr_div_d_dart>('mpfr_div_d');
+
+// Definir a função mpfr_div_z
+typedef mpfr_div_z_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_div_z_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_div_z_dart mpfr_div_z = mpfrLib.lookupFunction<mpfr_div_z_native, mpfr_div_z_dart>('mpfr_div_z');
+
+// Definir a função mpfr_div_q
+typedef mpfr_div_q_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_div_q_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_div_q_dart mpfr_div_q = mpfrLib.lookupFunction<mpfr_div_q_native, mpfr_div_q_dart>('mpfr_div_q');
+
+// Definir a função mpfr_ui_div
+typedef mpfr_ui_div_native = Int Function(Pointer<mpfr_t>, UnsignedLong, Pointer<mpfr_t>, Int);
+typedef mpfr_ui_div_dart = int Function(Pointer<mpfr_t>, int, Pointer<mpfr_t>, int);
+final mpfr_ui_div_dart mpfr_ui_div = mpfrLib.lookupFunction<mpfr_ui_div_native, mpfr_ui_div_dart>('mpfr_ui_div');
+
+// Definir a função mpfr_si_div
+typedef mpfr_si_div_native = Int Function(Pointer<mpfr_t>, Long, Pointer<mpfr_t>, Int);
+typedef mpfr_si_div_dart = int Function(Pointer<mpfr_t>, int, Pointer<mpfr_t>, int);
+final mpfr_si_div_dart mpfr_si_div = mpfrLib.lookupFunction<mpfr_si_div_native, mpfr_si_div_dart>('mpfr_si_div');
+
+// Definir a função mpfr_d_div
+typedef mpfr_d_div_native = Int Function(Pointer<mpfr_t>, Double, Pointer<mpfr_t>, Int);
+typedef mpfr_d_div_dart = int Function(Pointer<mpfr_t>, double, Pointer<mpfr_t>, int);
+final mpfr_d_div_dart mpfr_d_div = mpfrLib.lookupFunction<mpfr_d_div_native, mpfr_d_div_dart>('mpfr_d_div');
 
 // Definir a função mpfr_get_si
 typedef mpfr_get_si_native = Long Function(Pointer<mpfr_t>, Int);
@@ -200,31 +298,6 @@ typedef mpfr_pow_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Long
 typedef mpfr_pow_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
 final mpfr_pow_si_dart mpfr_pow_si = mpfrLib.lookupFunction<mpfr_pow_si_native, mpfr_pow_si_dart>('mpfr_pow_si');
 
-// Definir a função mpfr_mul_si
-typedef mpfr_mul_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Long, Int);
-typedef mpfr_mul_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
-final mpfr_mul_si_dart mpfr_mul_si = mpfrLib.lookupFunction<mpfr_mul_si_native, mpfr_mul_si_dart>('mpfr_mul_si');
-
-// Definir a função mpfr_div_si
-typedef mpfr_div_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Long, Int);
-typedef mpfr_div_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
-final mpfr_div_si_dart mpfr_div_si = mpfrLib.lookupFunction<mpfr_div_si_native, mpfr_div_si_dart>('mpfr_div_si');
-
-// Definir a função mpfr_si_div
-typedef mpfr_si_div_native = Int Function(Pointer<mpfr_t>, Long, Pointer<mpfr_t>, Int);
-typedef mpfr_si_div_dart = int Function(Pointer<mpfr_t>, int, Pointer<mpfr_t>, int);
-final mpfr_si_div_dart mpfr_si_div = mpfrLib.lookupFunction<mpfr_si_div_native, mpfr_si_div_dart>('mpfr_si_div');
-
-// Definir a função mpfr_div_ui
-typedef mpfr_div_ui_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, UnsignedLong, Int);
-typedef mpfr_div_ui_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
-final mpfr_div_ui_dart mpfr_div_ui = mpfrLib.lookupFunction<mpfr_div_ui_native, mpfr_div_ui_dart>('mpfr_div_ui');
-
-// Definir a função mpfr_ui_div
-typedef mpfr_ui_div_native = Int Function(Pointer<mpfr_t>, UnsignedLong, Pointer<mpfr_t>, Int);
-typedef mpfr_ui_div_dart = int Function(Pointer<mpfr_t>, int, Pointer<mpfr_t>, int);
-final mpfr_ui_div_dart mpfr_ui_div = mpfrLib.lookupFunction<mpfr_ui_div_native, mpfr_ui_div_dart>('mpfr_ui_div');
-
 // Definir a função mpfr_integer_p
 typedef mpfr_integer_p_native = Int Function(Pointer<mpfr_t>);
 typedef mpfr_integer_p_dart = int Function(Pointer<mpfr_t>);
@@ -245,3 +318,7 @@ typedef mpfr_get_str_native = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Long
 typedef mpfr_get_str_dart = Pointer<Utf8> Function(Pointer<Utf8>, Pointer<Long>, int, int, Pointer<mpfr_t>, int);
 final mpfr_get_str_dart mpfr_get_str = mpfrLib.lookupFunction<mpfr_get_str_native, mpfr_get_str_dart>('mpfr_get_str');
 
+// Definir a função mpfr_free_str
+typedef mpfr_free_str_native = Void Function(Pointer<Utf8>);
+typedef mpfr_free_str_dart = void Function(Pointer<Utf8>);
+final mpfr_free_str_dart mpfr_free_str = mpfrLib.lookupFunction<mpfr_free_str_native, mpfr_free_str_dart>('mpfr_free_str');
