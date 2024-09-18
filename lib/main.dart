@@ -32,19 +32,29 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String numberX = '';
+  String numberY = '';
+  String numberZ = '';
   String resultado = '';
   String resultado2 = '';
 
   void test_add_real_numbers() {
     Real x = Real();
     Real y = Real();
-    // x.setDouble(0.0000000000000001);
-    // y.setDouble(0.0000000000000002);
-    x.setString('0.00000000000000000000000000000000000000000000555');
-    y.setString('0.00000000000000000000000000000000000000000000444');
-
     Real z = Real();
-    z.add(x, y);
+    x.setString('0.100000000000000000002');
+    y.setString('0.100000000000000000003');
+    z.setPi();
+
+    print('X: ${x.getString()}, ${x.getDouble().toString()}');
+    print('Y: ${y.getString()}, ${y.getDouble().toString()}');
+    print('Z: ${z.getString()}, ${z.getDouble().toString()}');
+
+    z.mul(x, y);
+
+    print('X: ${x.getString()}, ${x.getDouble().toString()}');
+    print('Y: ${y.getString()}, ${y.getDouble().toString()}');
+    print('Z: ${z.getString()}, ${z.getDouble().toString()}');
 
     resultado = z.getString();
     resultado2 = z.getDouble().toString();
