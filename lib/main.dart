@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ffi' as ffi;
-import 'mpc.dart';
 import 'package:ffi/ffi.dart';
+import 'package:calculator/mpfr.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -32,37 +33,21 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String resultado = '';
+  String resultado2 = '';
 
-  void main() {
-    // Criar dois números complexos (3 + 4i) e (1 + 2i)
-    final complex1 = createComplexNumber(3.0, 4.0);
-    final complex2 = createComplexNumber(1.0, 2.0);
+  void test_add_real_numbers() {
+    Real x = Real();
+    Real y = Real();
+    // x.setDouble(0.0000000000000001);
+    // y.setDouble(0.0000000000000002);
+    x.setString('0.00000000000000000000000000000000000000000000555');
+    y.setString('0.00000000000000000000000000000000000000000000444');
 
-    // Somar os números complexos
-    final result = addComplexNumbers(complex1, complex2);
+    Real z = Real();
+    z.add(x, y);
 
-    // Imprimir o resultado
-    resultado = printComplexNumber(result);
-
-    // Liberar a memória alocada
-    mpc_clear(complex1);
-    mpc_clear(complex2);
-    mpc_clear(result);
-
-    if (complex1 != ffi.nullptr) {
-      print('complex1 is not null');
-      calloc.free(complex1);
-    }
-
-    if (complex2 != ffi.nullptr) {
-      print('complex2 is not null');
-      calloc.free(complex2);
-    }
-
-    if (result != ffi.nullptr) {
-      print('result is not null');
-      calloc.free(result);
-    }
+    resultado = z.getString();
+    resultado2 = z.getDouble().toString();
   }
 
   @override
@@ -77,17 +62,16 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Somar',
+              'Testes',
             ),
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  main();
+                  test_add_real_numbers();
                 });
               },
-              child: const Text('Somar'),
+              child: const Text('Calcular'),
             ),
-            Text(resultado),
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -96,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Limpar'),
             ),
+            Text(resultado),
+            Text(resultado2),
           ],
         ),
       ),

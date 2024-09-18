@@ -183,6 +183,16 @@ typedef mpfr_d_div_native = Int Function(Pointer<mpfr_t>, Double, Pointer<mpfr_t
 typedef mpfr_d_div_dart = int Function(Pointer<mpfr_t>, double, Pointer<mpfr_t>, int);
 final mpfr_d_div_dart mpfr_d_div = mpfrLib.lookupFunction<mpfr_d_div_native, mpfr_d_div_dart>('mpfr_d_div');
 
+// Definir a função mpfr_fmod
+typedef mpfr_fmod_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, Int);
+typedef mpfr_fmod_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Pointer<mpfr_t>, int);
+final mpfr_fmod_dart mpfr_fmod = mpfrLib.lookupFunction<mpfr_fmod_native, mpfr_fmod_dart>('mpfr_fmod');
+
+// Definir a função mpfr_fmod_ui
+typedef mpfr_fmod_ui_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, UnsignedLong, Int);
+typedef mpfr_fmod_ui_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
+final mpfr_fmod_ui_dart mpfr_fmod_ui = mpfrLib.lookupFunction<mpfr_fmod_ui_native, mpfr_fmod_ui_dart>('mpfr_fmod_ui');
+
 // Definir a função mpfr_get_si
 typedef mpfr_get_si_native = Long Function(Pointer<mpfr_t>, Int);
 typedef mpfr_get_si_dart = int Function(Pointer<mpfr_t>, int);
@@ -503,6 +513,7 @@ typedef mpfr_rootn_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Lo
 typedef mpfr_rootn_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
 final mpfr_rootn_si_dart mpfr_rootn_si = mpfrLib.lookupFunction<mpfr_rootn_si_native, mpfr_rootn_si_dart>('mpfr_rootn_si');
 
+
 // classe Real: Representa um número real com precisão arbitrária
 class Real {
   // Ponteiro para a estrutura mpfr_t
@@ -636,12 +647,15 @@ class Real {
 
   // Retorna o valor do número real como string
   String getString([int base = 10, int round = Round.MPFR_RNDN]) {
-    Pointer<Utf8> str = calloc.allocate<Utf8>(256);
+    // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
     Pointer<Long> exp = calloc.allocate<Long>(1);
-    mpfr_get_str(str, exp, base, 0, _real, round);
+    Pointer<Utf8> str;
+    str = mpfr_get_str(nullptr, exp, base, 0, _real, round);
+
     String result = str.toDartString();
-    calloc.free(str);
-    calloc.free(exp);
+    // calloc.free(str);
+    mpfr_free_str(str);
+    // calloc.free(exp);
     return result;
   }
 
@@ -708,6 +722,121 @@ class Real {
   // Compara o número real com um double
   int cmpDouble(double value) {
     return mpfr_cmp_d(_real, value);
+  }
+
+  // Calcula a soma de dois números reais
+  void add(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+    mpfr_add(_real, value1._real, value2._real, round);
+  }
+
+  // Calcula a soma de um número real com um inteiro com sinal
+  void addInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_add_si(_real, value._real, num, round);
+  }
+
+  // Calcula a soma de um número real com um inteiro sem sinal
+  void addUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_add_ui(_real, value._real, num, round);
+  }
+
+  // Calcula a soma de um número real com um double
+  void addDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+    mpfr_add_d(_real, value._real, num, round);
+  }
+
+  // Calcula a subtração de dois números reais
+  void sub(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+    mpfr_sub(_real, value1._real, value2._real, round);
+  }
+
+  // Calcula a subtração de um número real com um inteiro com sinal
+  void subInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_sub_si(_real, value._real, num, round);
+  }
+
+  // Calcula a subtração de um número real com um inteiro sem sinal
+  void subUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_sub_ui(_real, value._real, num, round);
+  }
+
+  // Calcula a subtração de um número real com um double
+  void subDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+    mpfr_sub_d(_real, value._real, num, round);
+  }
+
+  // Calcula a subtração de um inteiro com sinal com um número real
+  void intSub(int num, Real value, [int round = Round.MPFR_RNDN]) {
+    mpfr_si_sub(_real, num, value._real, round);
+  }
+
+  // Calcula a subtração de um inteiro sem sinal com um número real
+  void uintSub(int num, Real value, [int round = Round.MPFR_RNDN]) {
+    mpfr_ui_sub(_real, num, value._real, round);
+  }
+
+  // Calcula a subtração de um double com um número real
+  void doubleSub(double num, Real value, [int round = Round.MPFR_RNDN]) {
+    mpfr_d_sub(_real, num, value._real, round);
+  }
+
+  // Calcula a multiplicação de dois números reais
+  void mul(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+    mpfr_mul(_real, value1._real, value2._real, round);
+  }
+
+  // Calcula a multiplicação de um número real com um inteiro com sinal
+  void mulInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_mul_si(_real, value._real, num, round);
+  }
+
+  // Calcula a multiplicação de um número real com um inteiro sem sinal
+  void mulUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_mul_ui(_real, value._real, num, round);
+  }
+
+  // Calcula a multiplicação de um número real com um double
+  void mulDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+    mpfr_mul_d(_real, value._real, num, round);
+  }
+
+  // Calcula a divisão de dois números reais
+  void div(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+    mpfr_div(_real, value1._real, value2._real, round);
+  }
+
+  // Calcula a divisão de um número real com um inteiro com sinal
+  void divInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_div_si(_real, value._real, num, round);
+  }
+
+  // Calcula a divisão de um número real com um inteiro sem sinal
+  void divUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+    mpfr_div_ui(_real, value._real, num, round);
+  }
+
+  // Calcula a divisão de um número real com um double
+  void divDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+    mpfr_div_d(_real, value._real, num, round);
+  }
+
+  // Calcula a divisão de um inteiro com sinal com um número real
+  void intDiv(int num, Real value, [int round = Round.MPFR_RNDN]) {
+    mpfr_si_div(_real, num, value._real, round);
+  }
+
+  // Calcula a divisão de um inteiro sem sinal com um número real
+  void uintDiv(int num, Real value, [int round = Round.MPFR_RNDN]) {
+    mpfr_ui_div(_real, num, value._real, round);
+  }
+
+  // Calcula a divisão de um double com um número real
+  void doubleDiv(double num, Real value, [int round = Round.MPFR_RNDN]) {
+    mpfr_d_div(_real, num, value._real, round);
+  }
+
+  // Calcula o resto da divisão de dois números reais
+  void mod(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+    mpfr_fmod(_real, value1._real, value2._real, round);
   }
 
   // Atribui o oposto de um número ao número real
