@@ -1,20 +1,20 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
-final class mpfr extends Struct {
+final class mpfr_t extends Struct {
   @Long()
   external int _mpfr_prec;
   @Int()
   external int _mpfr_sign;
   @Long()
   external int _mpfr_exp;
-  external Pointer<Uint64> _mpfr_d;
+  external Pointer<UnsignedLong> _mpfr_d;
 }
 
 // Definindo a estrutura do número complexo
 final class ComplexNumber extends Struct {
-  external mpfr _mpfr_re;
-  external mpfr _mpfr_im;
+  external mpfr_t _mpfr_re;
+  external mpfr_t _mpfr_im;
 }
 
 // Carregar a biblioteca MPC
