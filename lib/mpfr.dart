@@ -16,7 +16,7 @@ final class mpfr_t extends Struct {
   external int _mpfr_sign;
   @Long()
   external int _mpfr_exp;
-  external Pointer<Uint64> _mpfr_d;
+  external Pointer<UnsignedLong> _mpfr_d;
 }
 
 // Carregar a biblioteca MPFR
