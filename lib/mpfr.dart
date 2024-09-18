@@ -19,19 +19,19 @@ final class mpfr_t extends Struct {
   external Pointer<UnsignedLong> _mpfr_d;
 }
 
+// Definição da enumeração Round (MPFR), equivalente a mpfr_rnd_t em C
+class MPFRRound {
+  static const int RNDN = 0;
+  static const int RNDZ = 1;
+  static const int RNDU = 2;
+  static const int RNDD = 3;
+  static const int RNDA = 4;
+  static const int RNDF = 5;
+  static const int RNDNA = -1;
+}
+
 // Carregar a biblioteca MPFR
 final DynamicLibrary mpfrLib = DynamicLibrary.open('libmpfr.so');
-
-// Definição da enumeração Round, equivalente a mpfr_rnd_t em C
-class Round {
-  static const int MPFR_RNDN = 0;
-  static const int MPFR_RNDZ = 1;
-  static const int MPFR_RNDU = 2;
-  static const int MPFR_RNDD = 3;
-  static const int MPFR_RNDA = 4;
-  static const int MPFR_RNDF = 5;
-  static const int MPFR_RNDNA = -1;
-}
 
 // Definir a função mpc_init2
 typedef mpfr_init2_native = Void Function(Pointer<mpfr_t>, Long);
@@ -536,21 +536,21 @@ class Real {
   Real.fromDouble(double value) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
-    mpfr_set_d(_number, value, Round.MPFR_RNDN);
+    mpfr_set_d(_number, value, MPFRRound.RNDN);
   }
 
   // Construtor a partir de um inteiro
   Real.fromInt(int value) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
-    mpfr_set_si(_number, value, Round.MPFR_RNDN);
+    mpfr_set_si(_number, value, MPFRRound.RNDN);
   }
 
   // Construtor a partir de uma string
   Real.fromString(String value) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
-    mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), 10, Round.MPFR_RNDN);
+    mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), 10, MPFRRound.RNDN);
   }
 
   // Destrutor
@@ -565,88 +565,88 @@ class Real {
   }
 
   // Atribui um valor double ao número real
-  void setDouble(double value, [int round = Round.MPFR_RNDN]) {
+  void setDouble(double value, [int round = MPFRRound.RNDN]) {
     mpfr_set_d(_number, value, round);
   }
 
   // Atribui um valor float ao número real
-  void setFloat(double value, [int round = Round.MPFR_RNDN]) {
+  void setFloat(double value, [int round = MPFRRound.RNDN]) {
     mpfr_set_flt(_number, value, round);
   }
 
   // Atribui um valor inteiro com sinal ao número real
-  void setInt(int value, [int round = Round.MPFR_RNDN]) {
+  void setInt(int value, [int round = MPFRRound.RNDN]) {
     mpfr_set_si(_number, value, round);
   }
 
   // Atribui um valor inteiro sem sinal ao número real
-  void setUInt(int value, [int round = Round.MPFR_RNDN]) {
+  void setUInt(int value, [int round = MPFRRound.RNDN]) {
     mpfr_set_ui(_number, value, round);
   }
 
   // Atribui um valor string ao número real
-  void setString(String value, [int round = Round.MPFR_RNDN]) {
+  void setString(String value, [int round = MPFRRound.RNDN]) {
     mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), 10, round);
   }
 
   // Atribui um valor real ao número real
-  void setReal(Real value, [int round = Round.MPFR_RNDN]) {
+  void setReal(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_set(_number, value._number, round);
   }
 
   // Atribui o valor zero ao número real
-  void setZero([int round = Round.MPFR_RNDN]) {
+  void setZero([int round = MPFRRound.RNDN]) {
     mpfr_set_zero(_number, round);
   }
 
   // Atribui o valor pi ao número real
-  void setPi([int round = Round.MPFR_RNDN]) {
+  void setPi([int round = MPFRRound.RNDN]) {
     mpfr_const_pi(_number, round);
   }
 
   // Atribui o valor log2 ao número real
-  void setLog2([int round = Round.MPFR_RNDN]) {
+  void setLog2([int round = MPFRRound.RNDN]) {
     mpfr_const_log2(_number, round);
   }
 
   // Atribui o valor euler ao número real
-  void setEuler([int round = Round.MPFR_RNDN]) {
+  void setEuler([int round = MPFRRound.RNDN]) {
     mpfr_const_euler(_number, round);
   }
 
   // Atribui o valor catalan ao número real
-  void setCatalan([int round = Round.MPFR_RNDN]) {
+  void setCatalan([int round = MPFRRound.RNDN]) {
     mpfr_const_catalan(_number, round);
   }
 
   // Atribui o valor tau ao número real
-  void setTau([int round = Round.MPFR_RNDN]) {
+  void setTau([int round = MPFRRound.RNDN]) {
     mpfr_const_pi(_number, round);
     mpfr_mul_si(_number, _number, 2, round);
   }
 
   // Retorna o valor do número real como double
-  double getDouble([int round = Round.MPFR_RNDN]) {
+  double getDouble([int round = MPFRRound.RNDN]) {
     return mpfr_get_d(_number, round);
   }
 
   // Retorna o valor do número real como float
-  double getFloat([int round = Round.MPFR_RNDN]) {
+  double getFloat([int round = MPFRRound.RNDN]) {
     return mpfr_get_flt(_number, round);
   }
 
   // Retorna o valor do número real como inteiro com sinal
-  int getInt([int round = Round.MPFR_RNDN]) {
+  int getInt([int round = MPFRRound.RNDN]) {
     return mpfr_get_si(_number, round);
   }
 
   // Retorna o valor do número real como inteiro sem sinal
-  int getUInt([int round = Round.MPFR_RNDN]) {
+  int getUInt([int round = MPFRRound.RNDN]) {
     return mpfr_get_ui(_number, round);
   }
 
   // Retorna o valor do número real como string
-  String getString([int base = 10, int round = Round.MPFR_RNDN]) {
+  String getString([int base = 10, int round = MPFRRound.RNDN]) {
     // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
     Pointer<Long> exp = calloc.allocate<Long>(1);
     Pointer<Utf8> str;
@@ -725,307 +725,307 @@ class Real {
   }
 
   // Calcula a soma de dois números reais
-  void add(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+  void add(Real value1, Real value2, [int round = MPFRRound.RNDN]) {
     mpfr_add(_number, value1._number, value2._number, round);
   }
 
   // Calcula a soma de um número real com um inteiro com sinal
-  void addInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void addInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_add_si(_number, value._number, num, round);
   }
 
   // Calcula a soma de um número real com um inteiro sem sinal
-  void addUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void addUInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_add_ui(_number, value._number, num, round);
   }
 
   // Calcula a soma de um número real com um double
-  void addDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+  void addDouble(Real value, double num, [int round = MPFRRound.RNDN]) {
     mpfr_add_d(_number, value._number, num, round);
   }
 
   // Calcula a subtração de dois números reais
-  void sub(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+  void sub(Real value1, Real value2, [int round = MPFRRound.RNDN]) {
     mpfr_sub(_number, value1._number, value2._number, round);
   }
 
   // Calcula a subtração de um número real com um inteiro com sinal
-  void subInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void subInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_sub_si(_number, value._number, num, round);
   }
 
   // Calcula a subtração de um número real com um inteiro sem sinal
-  void subUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void subUInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_sub_ui(_number, value._number, num, round);
   }
 
   // Calcula a subtração de um número real com um double
-  void subDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+  void subDouble(Real value, double num, [int round = MPFRRound.RNDN]) {
     mpfr_sub_d(_number, value._number, num, round);
   }
 
   // Calcula a subtração de um inteiro com sinal com um número real
-  void intSub(int num, Real value, [int round = Round.MPFR_RNDN]) {
+  void intSub(int num, Real value, [int round = MPFRRound.RNDN]) {
     mpfr_si_sub(_number, num, value._number, round);
   }
 
   // Calcula a subtração de um inteiro sem sinal com um número real
-  void uintSub(int num, Real value, [int round = Round.MPFR_RNDN]) {
+  void uintSub(int num, Real value, [int round = MPFRRound.RNDN]) {
     mpfr_ui_sub(_number, num, value._number, round);
   }
 
   // Calcula a subtração de um double com um número real
-  void doubleSub(double num, Real value, [int round = Round.MPFR_RNDN]) {
+  void doubleSub(double num, Real value, [int round = MPFRRound.RNDN]) {
     mpfr_d_sub(_number, num, value._number, round);
   }
 
   // Calcula a multiplicação de dois números reais
-  void mul(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+  void mul(Real value1, Real value2, [int round = MPFRRound.RNDN]) {
     mpfr_mul(_number, value1._number, value2._number, round);
   }
 
   // Calcula a multiplicação de um número real com um inteiro com sinal
-  void mulInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void mulInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_mul_si(_number, value._number, num, round);
   }
 
   // Calcula a multiplicação de um número real com um inteiro sem sinal
-  void mulUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void mulUInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_mul_ui(_number, value._number, num, round);
   }
 
   // Calcula a multiplicação de um número real com um double
-  void mulDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+  void mulDouble(Real value, double num, [int round = MPFRRound.RNDN]) {
     mpfr_mul_d(_number, value._number, num, round);
   }
 
   // Calcula a divisão de dois números reais
-  void div(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+  void div(Real value1, Real value2, [int round = MPFRRound.RNDN]) {
     mpfr_div(_number, value1._number, value2._number, round);
   }
 
   // Calcula a divisão de um número real com um inteiro com sinal
-  void divInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void divInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_div_si(_number, value._number, num, round);
   }
 
   // Calcula a divisão de um número real com um inteiro sem sinal
-  void divUInt(Real value, int num, [int round = Round.MPFR_RNDN]) {
+  void divUInt(Real value, int num, [int round = MPFRRound.RNDN]) {
     mpfr_div_ui(_number, value._number, num, round);
   }
 
   // Calcula a divisão de um número real com um double
-  void divDouble(Real value, double num, [int round = Round.MPFR_RNDN]) {
+  void divDouble(Real value, double num, [int round = MPFRRound.RNDN]) {
     mpfr_div_d(_number, value._number, num, round);
   }
 
   // Calcula a divisão de um inteiro com sinal com um número real
-  void intDiv(int num, Real value, [int round = Round.MPFR_RNDN]) {
+  void intDiv(int num, Real value, [int round = MPFRRound.RNDN]) {
     mpfr_si_div(_number, num, value._number, round);
   }
 
   // Calcula a divisão de um inteiro sem sinal com um número real
-  void uintDiv(int num, Real value, [int round = Round.MPFR_RNDN]) {
+  void uintDiv(int num, Real value, [int round = MPFRRound.RNDN]) {
     mpfr_ui_div(_number, num, value._number, round);
   }
 
   // Calcula a divisão de um double com um número real
-  void doubleDiv(double num, Real value, [int round = Round.MPFR_RNDN]) {
+  void doubleDiv(double num, Real value, [int round = MPFRRound.RNDN]) {
     mpfr_d_div(_number, num, value._number, round);
   }
 
   // Calcula o resto da divisão de dois números reais
-  void mod(Real value1, Real value2, [int round = Round.MPFR_RNDN]) {
+  void mod(Real value1, Real value2, [int round = MPFRRound.RNDN]) {
     mpfr_fmod(_number, value1._number, value2._number, round);
   }
 
   // Atribui o oposto de um número ao número real
-  void neg(Real value, [int round = Round.MPFR_RNDN]) {
+  void neg(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_neg(_number, value._number, round);
   }
 
   // Calcula a potência de um número real com outro número real
-  void pow(Real value, Real exp, [int round = Round.MPFR_RNDN]) {
+  void pow(Real value, Real exp, [int round = MPFRRound.RNDN]) {
     mpfr_pow(_number, value._number, exp._number, round);
   }
 
   // Calcula a potência de um número real com um inteiro com sinal
-  void powInt(Real value, int exp, [int round = Round.MPFR_RNDN]) {
+  void powInt(Real value, int exp, [int round = MPFRRound.RNDN]) {
     mpfr_pow_si(_number, value._number, exp, round);
   }
 
   // Calcula a potência de um número real com um inteiro sem sinal
-  void powUInt(Real value, int exp, [int round = Round.MPFR_RNDN]) {
+  void powUInt(Real value, int exp, [int round = MPFRRound.RNDN]) {
     mpfr_pow_ui(_number, value._number, exp, round);
   }
 
   // Calcula a exponencial de um número real
-  void exp(Real value, [int round = Round.MPFR_RNDN]) {
+  void exp(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_exp(_number, value._number, round);
   }
 
   // Calcula a exponencial de base 2 de um número real
-  void exp2(Real value, [int round = Round.MPFR_RNDN]) {
+  void exp2(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_exp2(_number, value._number, round);
   }
 
   // Calcula a exponencial de base 10 de um número real
-  void exp10(Real value, [int round = Round.MPFR_RNDN]) {
+  void exp10(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_exp10(_number, value._number, round);
   }
 
   // Calcula a raiz quadrada de um número real
-  void sqrt(Real value, [int round = Round.MPFR_RNDN]) {
+  void sqrt(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_sqrt(_number, value._number, round);
   }
 
   // Calcula a raiz quadrada de um inteiro sem sinal
-  void sqrtUInt(int value, [int round = Round.MPFR_RNDN]) {
+  void sqrtUInt(int value, [int round = MPFRRound.RNDN]) {
     mpfr_sqrt_ui(_number, value, round);
   }
 
   // Calcula o valor absoluto de um número real
-  void abs(Real value, [int round = Round.MPFR_RNDN]) {
+  void abs(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_abs(_number, value._number, round);
   }
 
   // Calcula o valor do seno de um número real
-  void sin(Real value, [int round = Round.MPFR_RNDN]) {
+  void sin(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_sin(_number, value._number, round);
   }
 
   // Calcula o valor do cosseno de um número real
-  void cos(Real value, [int round = Round.MPFR_RNDN]) {
+  void cos(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_cos(_number, value._number, round);
   }
 
   // Calcula o valor da tangente de um número real
-  void tan(Real value, [int round = Round.MPFR_RNDN]) {
+  void tan(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_tan(_number, value._number, round);
   }
 
   // Calcula o valor da secante de um número real
-  void sec(Real value, [int round = Round.MPFR_RNDN]) {
+  void sec(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_sec(_number, value._number, round);
   }
 
   // Calcula o valor da cossecante de um número real
-  void csc(Real value, [int round = Round.MPFR_RNDN]) {
+  void csc(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_csc(_number, value._number, round);
   }
 
   // Calcula o valor da cotangente de um número real
-  void cot(Real value, [int round = Round.MPFR_RNDN]) {
+  void cot(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_cot(_number, value._number, round);
   }
 
   // Calcula o valor do arco seno de um número real
-  void asin(Real value, [int round = Round.MPFR_RNDN]) {
+  void asin(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_asin(_number, value._number, round);
   }
 
   // Calcula o valor do arco cosseno de um número real
-  void acos(Real value, [int round = Round.MPFR_RNDN]) {
+  void acos(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_acos(_number, value._number, round);
   }
 
   // Calcula o valor do arco tangente de um número real
-  void atan(Real value, [int round = Round.MPFR_RNDN]) {
+  void atan(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_atan(_number, value._number, round);
   }
 
   // Calcula o valor da seno hiperbólico de um número real
-  void sinh(Real value, [int round = Round.MPFR_RNDN]) {
+  void sinh(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_sinh(_number, value._number, round);
   }
 
   // Calcula o valor do cosseno hiperbólico de um número real
-  void cosh(Real value, [int round = Round.MPFR_RNDN]) {
+  void cosh(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_cosh(_number, value._number, round);
   }
 
   // Calcula o valor da tangente hiperbólica de um número real
-  void tanh(Real value, [int round = Round.MPFR_RNDN]) {
+  void tanh(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_tanh(_number, value._number, round);
   }
 
   // Calcula o valor do arco seno hiperbólico de um número real
-  void asinh(Real value, [int round = Round.MPFR_RNDN]) {
+  void asinh(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_asinh(_number, value._number, round);
   }
 
   // Calcula o valor do arco cosseno hiperbólico de um número real
-  void acosh(Real value, [int round = Round.MPFR_RNDN]) {
+  void acosh(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_acosh(_number, value._number, round);
   }
 
   // Calcula o valor do arco tangente hiperbólico de um número real
-  void atanh(Real value, [int round = Round.MPFR_RNDN]) {
+  void atanh(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_atanh(_number, value._number, round);
   }
 
   // Calcula o valor do logaritmo natural de um número real
-  void log(Real value, [int round = Round.MPFR_RNDN]) {
+  void log(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_log(_number, value._number, round);
   }
 
   // Calcula o valor do logaritmo de base 2 de um número real
-  void log2(Real value, [int round = Round.MPFR_RNDN]) {
+  void log2(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_log2(_number, value._number, round);
   }
 
   // Calcula o valor do logaritmo de base 10 de um número real
-  void log10(Real value, [int round = Round.MPFR_RNDN]) {
+  void log10(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_log10(_number, value._number, round);
   }
 
   // Calcula o valor do fatorial de um número real
-  void gamma(Real value, [int round = Round.MPFR_RNDN]) {
+  void gamma(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_gamma(_number, value._number, round);
   }
 
   // Calcula a raiz de um número real
-  void root(Real value, int n, [int round = Round.MPFR_RNDN]) {
+  void root(Real value, int n, [int round = MPFRRound.RNDN]) {
     mpfr_root(_number, value._number, n, round);
   }
 
   // Calcula a raiz de um número real
-  void rootUInt(Real value, int n, [int round = Round.MPFR_RNDN]) {
+  void rootUInt(Real value, int n, [int round = MPFRRound.RNDN]) {
     mpfr_rootn_ui(_number, value._number, n, round);
   }
 
   // Calcula a raiz de um número real
-  void rootInt(Real value, int n, [int round = Round.MPFR_RNDN]) {
+  void rootInt(Real value, int n, [int round = MPFRRound.RNDN]) {
     mpfr_rootn_si(_number, value._number, n, round);
   }
 
   // Arredonda o número real para cima
-  void ceil([int round = Round.MPFR_RNDN]) {
+  void ceil([int round = MPFRRound.RNDN]) {
     mpfr_ceil(_number, _number);
   }
 
   // Arredonda o número real para baixo
-  void floor([int round = Round.MPFR_RNDN]) {
+  void floor([int round = MPFRRound.RNDN]) {
     mpfr_floor(_number, _number);
   }
 
   // Trunca o número real
-  void trunc([int round = Round.MPFR_RNDN]) {
+  void trunc([int round = MPFRRound.RNDN]) {
     mpfr_trunc(_number, _number);
   }
 
   // Arredonda o número real
-  void round([int round = Round.MPFR_RNDN]) {
+  void round([int round = MPFRRound.RNDN]) {
     mpfr_round(_number, _number);
   }
 
   // Arredonda o número real para o inteiro mais próximo
-  void rint([int round = Round.MPFR_RNDN]) {
+  void rint([int round = MPFRRound.RNDN]) {
     mpfr_rint(_number, _number, round);
   }
 
   // Calcula a parte fracionária de um número real
-  void frac(Real value, [int round = Round.MPFR_RNDN]) {
+  void frac(Real value, [int round = MPFRRound.RNDN]) {
     mpfr_frac(_number, value._number, round);
   }
 
