@@ -513,6 +513,11 @@ typedef mpfr_rootn_si_native = Int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, Lo
 typedef mpfr_rootn_si_dart = int Function(Pointer<mpfr_t>, Pointer<mpfr_t>, int, int);
 final mpfr_rootn_si_dart mpfr_rootn_si = mpfrLib.lookupFunction<mpfr_rootn_si_native, mpfr_rootn_si_dart>('mpfr_rootn_si');
 
+// Definir a função mpfr_asprintf
+typedef mpfr_asprintf_native = Int Function(Pointer<Pointer<Utf8>>, Pointer<Utf8>, Pointer<mpfr_t>);
+typedef mpfr_asprintf_dart = int Function(Pointer<Pointer<Utf8>>, Pointer<Utf8>, Pointer<mpfr_t>);
+final mpfr_asprintf_dart mpfr_asprintf = mpfrLib.lookupFunction<mpfr_asprintf_native, mpfr_asprintf_dart>('mpfr_asprintf');
+
 
 // classe Real: Representa um número real com precisão arbitrária
 class Real {
@@ -646,16 +651,27 @@ class Real {
   }
 
   // Retorna o valor do número real como string
-  String getString([int base = 10, int round = MPFRRound.RNDN]) {
-    // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
-    Pointer<Long> exp = calloc.allocate<Long>(1);
-    Pointer<Utf8> str;
-    str = mpfr_get_str(nullptr, exp, base, 0, _number, round);
+  // String getString([int base = 10, int round = MPFRRound.RNDN]) {
+  //   // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
+  //   Pointer<Long> exp = calloc.allocate<Long>(1);
+  //   Pointer<Utf8> str;
+  //   str = mpfr_get_str(nullptr, exp, base, 0, _number, round);
+  //
+  //   String result = str.toDartString();
+  //   // calloc.free(str);
+  //   mpfr_free_str(str);
+  //   // calloc.free(exp);
+  //   return result;
+  // }
 
-    String result = str.toDartString();
-    // calloc.free(str);
-    mpfr_free_str(str);
-    // calloc.free(exp);
+  // Retorna o valor do número real como string.
+  // usa a função mpfr_asprintf para obter a string
+  String getString([int base = 10, int round = MPFRRound.RNDN]) {
+    Pointer<Pointer<Utf8>> str = calloc.allocate<Pointer<Utf8>>(1);
+    mpfr_asprintf(str, "%.0Rf", _number);
+    String result = str.value.toDartString();
+    calloc.free(str);
+
     return result;
   }
 
