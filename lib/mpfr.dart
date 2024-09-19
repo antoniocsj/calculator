@@ -545,6 +545,22 @@ class Real {
     return (precisionInDigits * math.log(10) / math.log(2)).ceil();
   }
 
+  // calcular o número de dígitos a partir do número de bits e da base
+  int _calculateDigits(int bits, int base) {
+    if (base <= 1) {
+      throw ArgumentError('Base must be greater than 1');
+    }
+    return (bits * math.log(2) / math.log(base)).floor();
+  }
+
+  // calcular o número de bits a partir do número de dígitos e da base
+  int _calculateBits(int digits, int base) {
+    if (base <= 1) {
+      throw ArgumentError('Base must be greater than 1');
+    }
+    return (digits * math.log(base) / math.log(2)).ceil();
+  }
+
   // Construtor
   Real({this.precision = 256}) {
     _number = calloc<mpfr_t>();
@@ -558,24 +574,24 @@ class Real {
   }
 
   // Construtor a partir de um double
-  Real.fromDouble(double value) {
+  Real.fromDouble(double value, {this.precision = 256}) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
     mpfr_set_d(_number, value, MPFRRound.RNDN);
   }
 
   // Construtor a partir de um inteiro
-  Real.fromInt(int value) {
+  Real.fromInt(int value, {this.precision = 256}) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
     mpfr_set_si(_number, value, MPFRRound.RNDN);
   }
 
   // Construtor a partir de uma string
-  Real.fromString(String value) {
+  Real.fromString(String value, int base, {this.precision = 256}) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
-    mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), 10, MPFRRound.RNDN);
+    mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), base, MPFRRound.RNDN);
   }
 
   // Destrutor
@@ -605,8 +621,8 @@ class Real {
   }
 
   // Atribui um valor string ao número real
-  void setString(String value, [int round = MPFRRound.RNDN]) {
-    mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), 10, round);
+  void setString(String value, {int base = 10, int round = MPFRRound.RNDN}) {
+    mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), base, round);
   }
 
   // Atribui um valor real ao número real
