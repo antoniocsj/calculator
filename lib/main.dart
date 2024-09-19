@@ -42,8 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
     Real x = Real();
     Real y = Real();
     Real z = Real();
-    x.setString('0.100000000000000000002');
-    y.setString('0.100000000000000000003');
+    x.setString('0.10000002');
+    y.setString('0.20000003');
     z.setPi();
 
     print('X: ${x.getString()}, ${x.getDouble().toString()}');

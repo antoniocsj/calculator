@@ -697,15 +697,30 @@ class Real {
 
   // Retorna o valor do número real como string.
   // usa a função mpfr_asprintf para obter a string
-  String getString([int base = 10, int round = MPFRRound.RNDN]) {
+  String getString2({int numDigits = 0, int round = MPFRRound.RNDN}) {
     Pointer<Pointer<Utf8>> str = calloc.allocate<Pointer<Utf8>>(1);
-    Pointer<Utf8> template = "%.0Rf".toNativeUtf8(allocator: calloc);
+    int nDigits; // número de dígitos decimais efetivos
+    int maxNumDigits = _calculateDigits(precision, 10);
+
+    if (numDigits <= 0) {
+      nDigits = 0;
+    } else {
+      print('Number of digits: $numDigits');
+      nDigits = math.min(numDigits, maxNumDigits);
+      print('Number of digits (effective): $nDigits');
+    }
+
+    Pointer<Utf8> template = '%.${nDigits}Rf'.toNativeUtf8(allocator: calloc);
     mpfr_asprintf(str, template, _number);
     String result = str.value.toDartString();
     calloc.free(str);
     calloc.free(template);
 
     return result;
+  }
+
+  String getString([int round = MPFRRound.RNDN]) {
+    return getDouble(round).toString();
   }
 
   // Retorna true se o número real for zero
