@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
+import 'dart:math' as math;
 
 // Types in C vesus Types in FFI
 // mpfr_rnd_t -> Int
@@ -523,15 +524,34 @@ final mpfr_asprintf_dart mpfr_asprintf = mpfrLib.lookupFunction<mpfr_asprintf_na
 class Real {
   // Ponteiro para a estrutura mpfr_t
   late Pointer<mpfr_t> _number;
-  int precision = 256; // Precisão padrão
+
+  final int precision;
+
+  // Getter para a precisão
+  int get getPrecision => precision;
+
+  // Obter a precisão em dígitos decimais
+  int get precisionInDigits => _calulatePrecisionInDigits;
+
+  // calcular a precisão em dígitos decimais a partir da precisão em bits.
+  // fórmula usada: n_digits = floor(n_bits * log10(2))
+  int get _calulatePrecisionInDigits {
+    return (precision * math.log(2) / math.log(10)).floor();
+  }
+
+  // calcular a precisão em bits a partir da precisão em dígitos decimais.
+  // fórmula usada: n_bits = ceil(n_digits * log2(10))
+  int get _calulatePrecisionInBits {
+    return (precisionInDigits * math.log(10) / math.log(2)).ceil();
+  }
 
   // Construtor
-  Real() {
+  Real({this.precision = 256}) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
   }
 
-  // Construtor com precisão
+  // Construtor com precisão.
   Real.precision(this.precision) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, precision);
@@ -562,11 +582,6 @@ class Real {
   void dispose() {
     mpfr_clear(_number);
     calloc.free(_number);
-  }
-
-  // Obter a precisão
-  int getPrecision() {
-    return precision;
   }
 
   // Atribui um valor double ao número real
@@ -651,26 +666,28 @@ class Real {
   }
 
   // Retorna o valor do número real como string
-  // String getString([int base = 10, int round = MPFRRound.RNDN]) {
-  //   // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
-  //   Pointer<Long> exp = calloc.allocate<Long>(1);
-  //   Pointer<Utf8> str;
-  //   str = mpfr_get_str(nullptr, exp, base, 0, _number, round);
-  //
-  //   String result = str.toDartString();
-  //   // calloc.free(str);
-  //   mpfr_free_str(str);
-  //   // calloc.free(exp);
-  //   return result;
-  // }
+  // usa a função mpfr_get_str para obter a string
+  String getString1([int base = 10, int round = MPFRRound.RNDN]) {
+    // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
+    Pointer<Long> exp = calloc.allocate<Long>(1);
+    Pointer<Utf8> str;
+    str = mpfr_get_str(nullptr, exp, base, 0, _number, round);
+
+    String result = str.toDartString();
+    mpfr_free_str(str);
+    calloc.free(exp);
+    return result;
+  }
 
   // Retorna o valor do número real como string.
   // usa a função mpfr_asprintf para obter a string
   String getString([int base = 10, int round = MPFRRound.RNDN]) {
     Pointer<Pointer<Utf8>> str = calloc.allocate<Pointer<Utf8>>(1);
-    mpfr_asprintf(str, "%.0Rf", _number);
+    Pointer<Utf8> template = "%.0Rf".toNativeUtf8(allocator: calloc);
+    mpfr_asprintf(str, template, _number);
     String result = str.value.toDartString();
     calloc.free(str);
+    calloc.free(template);
 
     return result;
   }
