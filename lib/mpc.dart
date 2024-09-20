@@ -197,9 +197,9 @@ class Complex {
   }
 
   // Retorna a parte real do número complexo
-  double get real {
+  Real getReal() {
     final mpfr_t re = _complex.ref._mpfr_re;
-    return re._mpfr_d.value.toDouble();
+    return Real(re._mpfr_d.value.toDouble());
   }
 
   // Retorna a parte imaginária do número complexo
