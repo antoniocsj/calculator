@@ -15,15 +15,15 @@ import 'package:calculator/mpfr.dart';
 
 
 
-final class mpfr_t extends Struct {
-  @Long()
-  external int _mpfr_prec;
-  @Int()
-  external int _mpfr_sign;
-  @Long()
-  external int _mpfr_exp;
-  external Pointer<UnsignedLong> _mpfr_d;
-}
+// final class mpfr_t extends Struct {
+//   @Long()
+//   external int _mpfr_prec;
+//   @Int()
+//   external int _mpfr_sign;
+//   @Long()
+//   external int _mpfr_exp;
+//   external Pointer<UnsignedLong> _mpfr_d;
+// }
 
 // Definindo a estrutura do número complexo
 final class mpc_t extends Struct {
@@ -189,23 +189,43 @@ final mpc_set_fr_dart mpc_set_fr = mpcLib.lookupFunction<mpc_set_fr_native, mpc_
 
 class Complex {
   late Pointer<mpc_t> _complex;
-  int precision = 256; // Precisão padrão de 256 bits
+
+  // Getter para acessar o número complexo
+  Pointer<mpc_t> get complex => _complex;
+
+  final int _precision = 256; // Precisão padrão de 256 bits
+
+  // Getter para acessar a precisão do número complexo
+  int get precision => _precision;
 
   Complex() {
     _complex = calloc<mpc_t>();
-    mpc_init2(_complex, precision);
+    mpc_init2(_complex, _precision);
   }
 
-  // Retorna a parte real do número complexo
+  // Construtor a partir de dois doubles
+  Complex.fromDouble(double real, double imaginary) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    mpc_set_d_d(_complex, real, imaginary, MPCRound.MPC_RNDNN);
+  }
+
+  // Retorna a parte real do número complexo como um objeto Real
   Real getReal() {
-    final mpfr_t re = _complex.ref._mpfr_re;
-    return Real(re._mpfr_d.value.toDouble());
+    Pointer<mpfr_t> rePtr = _complex.cast<mpfr_t>()+0;
+    Real r = Real();
+    Pointer<mpfr_t> mpfrPtr = r.getPointer();
+    mpfr_set(mpfrPtr, rePtr, MPFRRound.RNDN);
+    return r;
   }
 
-  // Retorna a parte imaginária do número complexo
-  double get imaginary {
-    final mpfr_t im = _complex.ref._mpfr_im;
-    return im._mpfr_d.value.toDouble();
+  // Retorna a parte imaginária do número complexo como um objeto Real
+  Real getImaginary() {
+    Pointer<mpfr_t> imPtr = _complex.cast<mpfr_t>()+1;
+    Real r = Real();
+    Pointer<mpfr_t> mpfrPtr = r.getPointer();
+    mpfr_set(mpfrPtr, imPtr, MPFRRound.RNDN);
+    return r;
   }
 
 }

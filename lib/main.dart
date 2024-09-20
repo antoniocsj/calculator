@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:ffi' as ffi;
-import 'package:ffi/ffi.dart';
 import 'package:calculator/mpfr.dart';
+import 'package:calculator/mpc.dart';
 
 
 void main() {
@@ -39,25 +38,14 @@ class _MyHomePageState extends State<MyHomePage> {
   String resultado2 = '';
 
   void test_add_real_numbers() {
-    Real x = Real();
-    Real y = Real();
-    Real z = Real();
-    x.setString('0.10000002');
-    y.setString('0.20000003');
-    z.setPi();
+    Complex x = Complex.fromDouble(-3.6, 2.0);
 
-    print('X: ${x.getString()}, ${x.getDouble().toString()}');
-    print('Y: ${y.getString()}, ${y.getDouble().toString()}');
-    print('Z: ${z.getString()}, ${z.getDouble().toString()}');
+    Real real = x.getReal();
+    Real imag = x.getImaginary();
 
-    z.mul(x, y);
+    print('real: ${real.getDouble().toString()}');
+    print('imag: ${imag.getDouble().toString()}');
 
-    print('X: ${x.getString()}, ${x.getDouble().toString()}');
-    print('Y: ${y.getString()}, ${y.getDouble().toString()}');
-    print('Z: ${z.getString()}, ${z.getDouble().toString()}');
-
-    resultado = z.getString();
-    resultado2 = z.getDouble().toString();
   }
 
   @override

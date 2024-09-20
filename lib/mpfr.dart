@@ -525,10 +525,15 @@ class Real {
   // Ponteiro para a estrutura mpfr_t
   late Pointer<mpfr_t> _number;
 
-  final int _precision = 256; // precisão padrão
+  // Getter para o ponteiro
+  Pointer<mpfr_t> getPointer(){
+    return _number;
+  }
+
+  final int _precision = 256; // precisão padrão em bits. 256 bits = 77 dígitos decimais
 
   // Getter para a precisão
-  int get getPrecision => _precision;
+  int get precision => _precision;
 
   // Obter a precisão em dígitos decimais
   int get precisionInDigits => _calulatePrecisionInDigits;
@@ -594,6 +599,13 @@ class Real {
     mpfr_init2(_number, value._precision);
     mpfr_set(_number, value._number, MPFRRound.RNDN);
   }
+
+  // Construtor a partir de um ponteiro
+  // Real.fromPointer(Pointer<mpfr_t> ptr) {
+  //   _number = calloc<mpfr_t>();
+  //   mpfr_init2(_number, _precision);
+  //   mpfr_set(_number, ptr, MPFRRound.RNDN);
+  // }
 
   // Destrutor
   void dispose() {
