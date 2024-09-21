@@ -216,6 +216,12 @@ class Complex {
     mpc_set_d_d(_complex, real, imaginary, MPCRound.MPC_RNDNN);
   }
 
+  // Destrutor
+  void dispose() {
+    mpc_clear(_complex);
+    calloc.free(_complex);
+  }
+
   // Retorna a parte real do número complexo como um objeto Real
   Real getReal() {
     Pointer<mpfr_t> mpfrRealPtr = getRealPointer();
