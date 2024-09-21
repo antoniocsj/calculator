@@ -12,18 +12,7 @@ import 'package:calculator/mpfr.dart';
 // mpfr_ptr -> Pointer<mpfr_t>
 // mpc_ptr -> Pointer<mpc_t>
 // mpc_srcptr -> Pointer<mpc_t>
-
-
-
-// final class mpfr_t extends Struct {
-//   @Long()
-//   external int _mpfr_prec;
-//   @Int()
-//   external int _mpfr_sign;
-//   @Long()
-//   external int _mpfr_exp;
-//   external Pointer<UnsignedLong> _mpfr_d;
-// }
+// size_t -> UnsignedLong -> int
 
 // Definindo a estrutura do número complexo
 final class mpc_t extends Struct {
@@ -187,11 +176,28 @@ typedef mpc_set_fr_native = Int Function(Pointer<mpc_t>, Pointer<mpfr_t>, Int);
 typedef mpc_set_fr_dart = int Function(Pointer<mpc_t>, Pointer<mpfr_t>, int);
 final mpc_set_fr_dart mpc_set_fr = mpcLib.lookupFunction<mpc_set_fr_native, mpc_set_fr_dart>('mpc_set_fr');
 
+// Definir a função mpc_get_str
+typedef mpc_get_str_native = Pointer<Utf8> Function(Int, UnsignedLong, Pointer<mpc_t>, Int);
+typedef mpc_get_str_dart = Pointer<Utf8> Function(int, int, Pointer<mpc_t>, int);
+final mpc_get_str_dart mpc_get_str = mpcLib.lookupFunction<mpc_get_str_native, mpc_get_str_dart>('mpc_get_str');
+
 class Complex {
   late Pointer<mpc_t> _complex;
 
-  // Getter para acessar o número complexo
-  Pointer<mpc_t> get complex => _complex;
+  // Retorna um ponteiro para a estrutura mpc_t
+  Pointer<mpc_t> getPointer() {
+    return _complex;
+  }
+
+  // Retorna um ponteiro para a parte real do número complexo
+  Pointer<mpfr_t> getRealPointer() {
+    return _complex.cast<mpfr_t>()+0;
+  }
+
+  // Retorna um ponteiro para a parte imaginária do número complexo
+  Pointer<mpfr_t> getImaginaryPointer() {
+    return _complex.cast<mpfr_t>()+1;
+  }
 
   final int _precision = 256; // Precisão padrão de 256 bits
 
@@ -212,20 +218,31 @@ class Complex {
 
   // Retorna a parte real do número complexo como um objeto Real
   Real getReal() {
-    Pointer<mpfr_t> rePtr = _complex.cast<mpfr_t>()+0;
-    Real r = Real();
-    Pointer<mpfr_t> mpfrPtr = r.getPointer();
-    mpfr_set(mpfrPtr, rePtr, MPFRRound.RNDN);
-    return r;
+    Pointer<mpfr_t> mpfrRealPtr = getRealPointer();
+    Real temp = Real();
+
+    Pointer<mpfr_t> mpfrPtr = temp.getPointer();
+    mpfr_set(mpfrPtr, mpfrRealPtr, MPFRRound.RNDN);
+
+    return temp;
   }
 
   // Retorna a parte imaginária do número complexo como um objeto Real
   Real getImaginary() {
-    Pointer<mpfr_t> imPtr = _complex.cast<mpfr_t>()+1;
-    Real r = Real();
-    Pointer<mpfr_t> mpfrPtr = r.getPointer();
-    mpfr_set(mpfrPtr, imPtr, MPFRRound.RNDN);
-    return r;
+    Pointer<mpfr_t> mpfrRealPtr = getImaginaryPointer();
+    Real temp = Real();
+
+    Pointer<mpfr_t> mpfrPtr = temp.getPointer();
+    mpfr_set(mpfrPtr, mpfrRealPtr, MPFRRound.RNDN);
+
+    return temp;
   }
 
+  // Retorna o valor do número real como string
+  // usa a função mpc_get_str para obter a string
+  String getString({int base = 10, int numDigits = 0, int round = MPFRRound.RNDN}) {
+    int base = 10;
+    Pointer<Utf8> str = mpc_get_str(base, numDigits, _complex, MPCRound.MPC_RNDNN);
+    return str.toDartString();
+  }
 }

@@ -40,11 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void test_add_real_numbers() {
     Complex x = Complex.fromDouble(-3.6, 2.0);
 
-    Real real = x.getReal();
-    Real imag = x.getImaginary();
-
-    print('real: ${real.getDouble().toString()}');
-    print('imag: ${imag.getDouble().toString()}');
+    print('real: ${x.getReal().getDouble()}');
+    print('imag: ${x.getImaginary().getDouble()}');
+    print('complex: ${x.getString(numDigits: 3)}');
 
   }
 

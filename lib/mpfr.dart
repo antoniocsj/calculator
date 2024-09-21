@@ -525,7 +525,7 @@ class Real {
   // Ponteiro para a estrutura mpfr_t
   late Pointer<mpfr_t> _number;
 
-  // Getter para o ponteiro
+  // Retorna um ponteiro para a estrutura mpfr_t
   Pointer<mpfr_t> getPointer(){
     return _number;
   }
@@ -599,13 +599,6 @@ class Real {
     mpfr_init2(_number, value._precision);
     mpfr_set(_number, value._number, MPFRRound.RNDN);
   }
-
-  // Construtor a partir de um ponteiro
-  // Real.fromPointer(Pointer<mpfr_t> ptr) {
-  //   _number = calloc<mpfr_t>();
-  //   mpfr_init2(_number, _precision);
-  //   mpfr_set(_number, ptr, MPFRRound.RNDN);
-  // }
 
   // Destrutor
   void dispose() {
@@ -696,15 +689,15 @@ class Real {
 
   // Retorna o valor do número real como string
   // usa a função mpfr_get_str para obter a string
-  String getString1([int base = 10, int round = MPFRRound.RNDN]) {
-    // Pointer<Utf8> str = calloc.allocate<Utf8>(256);
+  String getString1({int base = 10, int numDigits = 0, int round = MPFRRound.RNDN}) {
     Pointer<Long> exp = calloc.allocate<Long>(1);
     Pointer<Utf8> str;
-    str = mpfr_get_str(nullptr, exp, base, 0, _number, round);
+    str = mpfr_get_str(nullptr, exp, base, numDigits, _number, round);
 
     String result = str.toDartString();
     mpfr_free_str(str);
     calloc.free(exp);
+
     return result;
   }
 
