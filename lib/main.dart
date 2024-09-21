@@ -37,12 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   String resultado = '';
   String resultado2 = '';
 
-  void test_add_real_numbers() {
+  void test_with_numbers() {
     Complex x = Complex.fromDouble(-3.6, 2.0);
 
     print('real: ${x.getReal().getDouble()}');
     print('imag: ${x.getImaginary().getDouble()}');
-    print('complex: ${x.getString(numDigits: 3)}');
+    print('complex: ${x.getString()}');
 
   }
 
@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  test_add_real_numbers();
+                  test_with_numbers();
                 });
               },
               child: const Text('Calcular'),

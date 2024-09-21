@@ -238,11 +238,23 @@ class Complex {
     return temp;
   }
 
-  // Retorna o valor do número real como string
+  // Retorna o valor do número complexo como string
   // usa a função mpc_get_str para obter a string
-  String getString({int base = 10, int numDigits = 0, int round = MPFRRound.RNDN}) {
+  String getString1({int base = 10, int numDigits = 0, int round = MPFRRound.RNDN}) {
     int base = 10;
     Pointer<Utf8> str = mpc_get_str(base, numDigits, _complex, MPCRound.MPC_RNDNN);
     return str.toDartString();
+  }
+
+  // Retorna o valor do número complexo como string no formato (a, b),
+  // onde a é a parte real e b é a parte imaginária
+  String getString([int round = MPFRRound.RNDN]) {
+    Real real = getReal();
+    Real imag = getImaginary();
+
+    String strReal = real.getString(round);
+    String strImag = imag.getString(round);
+
+    return '($strReal, $strImag)';
   }
 }
