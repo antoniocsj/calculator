@@ -181,6 +181,207 @@ typedef mpc_get_str_native = Pointer<Utf8> Function(Int, UnsignedLong, Pointer<m
 typedef mpc_get_str_dart = Pointer<Utf8> Function(int, int, Pointer<mpc_t>, int);
 final mpc_get_str_dart mpc_get_str = mpcLib.lookupFunction<mpc_get_str_native, mpc_get_str_dart>('mpc_get_str');
 
+// Definir a função mpc_add
+typedef mpc_add_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_add_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_add_dart mpc_add = mpcLib.lookupFunction<mpc_add_native, mpc_add_dart>('mpc_add');
+
+// Definir a função mpc_add_fr
+typedef mpc_add_fr_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, Int);
+typedef mpc_add_fr_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, int);
+final mpc_add_fr_dart mpc_add_fr = mpcLib.lookupFunction<mpc_add_fr_native, mpc_add_fr_dart>('mpc_add_fr');
+
+// Definir a função mpc_add_ui
+typedef mpc_add_ui_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, UnsignedLong, Int);
+typedef mpc_add_ui_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_add_ui_dart mpc_add_ui = mpcLib.lookupFunction<mpc_add_ui_native, mpc_add_ui_dart>('mpc_add_ui');
+
+// Definir a função mpc_sub
+typedef mpc_sub_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_sub_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_sub_dart mpc_sub = mpcLib.lookupFunction<mpc_sub_native, mpc_sub_dart>('mpc_sub');
+
+// Definir a função mpc_sub_fr
+typedef mpc_sub_fr_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, Int);
+typedef mpc_sub_fr_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, int);
+final mpc_sub_fr_dart mpc_sub_fr = mpcLib.lookupFunction<mpc_sub_fr_native, mpc_sub_fr_dart>('mpc_sub_fr');
+
+// Definir a função mpc_sub_ui
+typedef mpc_sub_ui_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, UnsignedLong, Int);
+typedef mpc_sub_ui_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_sub_ui_dart mpc_sub_ui = mpcLib.lookupFunction<mpc_sub_ui_native, mpc_sub_ui_dart>('mpc_sub_ui');
+
+// Definir a função mpc_fr_sub
+typedef mpc_fr_sub_native = Int Function(Pointer<mpc_t>, Pointer<mpfr_t>, Pointer<mpc_t>, Int);
+typedef mpc_fr_sub_dart = int Function(Pointer<mpc_t>, Pointer<mpfr_t>, Pointer<mpc_t>, int);
+final mpc_fr_sub_dart mpc_fr_sub = mpcLib.lookupFunction<mpc_fr_sub_native, mpc_fr_sub_dart>('mpc_fr_sub');
+
+// Definir a função mpc_ui_sub
+typedef mpc_ui_sub_native = Int Function(Pointer<mpc_t>, UnsignedLong, Pointer<mpc_t>, Int);
+typedef mpc_ui_sub_dart = int Function(Pointer<mpc_t>, int, Pointer<mpc_t>, int);
+final mpc_ui_sub_dart mpc_ui_sub = mpcLib.lookupFunction<mpc_ui_sub_native, mpc_ui_sub_dart>('mpc_ui_sub');
+
+// Definir a função mpc_ui_ui_sub
+typedef mpc_ui_ui_sub_native = Int Function(Pointer<mpc_t>, UnsignedLong, UnsignedLong, Pointer<mpc_t>, Int);
+typedef mpc_ui_ui_sub_dart = int Function(Pointer<mpc_t>, int, int, Pointer<mpc_t>, int);
+final mpc_ui_ui_sub_dart mpc_ui_ui_sub = mpcLib.lookupFunction<mpc_ui_ui_sub_native, mpc_ui_ui_sub_dart>('mpc_ui_ui_sub');
+
+// Definir a função mpc_neg
+typedef mpc_neg_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_neg_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_neg_dart mpc_neg = mpcLib.lookupFunction<mpc_neg_native, mpc_neg_dart>('mpc_neg');
+
+// Definir a função mpc_mul
+typedef mpc_mul_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_mul_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_mul_dart mpc_mul = mpcLib.lookupFunction<mpc_mul_native, mpc_mul_dart>('mpc_mul');
+
+// Definir a função mpc_mul_fr
+typedef mpc_mul_fr_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, Int);
+typedef mpc_mul_fr_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, int);
+final mpc_mul_fr_dart mpc_mul_fr = mpcLib.lookupFunction<mpc_mul_fr_native, mpc_mul_fr_dart>('mpc_mul_fr');
+
+// Definir a função mpc_mul_ui
+typedef mpc_mul_ui_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, UnsignedLong, Int);
+typedef mpc_mul_ui_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_mul_ui_dart mpc_mul_ui = mpcLib.lookupFunction<mpc_mul_ui_native, mpc_mul_ui_dart>('mpc_mul_ui');
+
+// Definir a função mpc_mul_si
+typedef mpc_mul_si_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Long, Int);
+typedef mpc_mul_si_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_mul_si_dart mpc_mul_si = mpcLib.lookupFunction<mpc_mul_si_native, mpc_mul_si_dart>('mpc_mul_si');
+
+// Definir a função mpc_div
+typedef mpc_div_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_div_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_div_dart mpc_div = mpcLib.lookupFunction<mpc_div_native, mpc_div_dart>('mpc_div');
+
+// Definir a função mpc_div_fr
+typedef mpc_div_fr_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, Int);
+typedef mpc_div_fr_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, int);
+final mpc_div_fr_dart mpc_div_fr = mpcLib.lookupFunction<mpc_div_fr_native, mpc_div_fr_dart>('mpc_div_fr');
+
+// Definir a função mpc_div_ui
+typedef mpc_div_ui_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, UnsignedLong, Int);
+typedef mpc_div_ui_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_div_ui_dart mpc_div_ui = mpcLib.lookupFunction<mpc_div_ui_native, mpc_div_ui_dart>('mpc_div_ui');
+
+// Definir a função mpc_ui_div
+typedef mpc_ui_div_native = Int Function(Pointer<mpc_t>, UnsignedLong, Pointer<mpc_t>, Int);
+typedef mpc_ui_div_dart = int Function(Pointer<mpc_t>, int, Pointer<mpc_t>, int);
+final mpc_ui_div_dart mpc_ui_div = mpcLib.lookupFunction<mpc_ui_div_native, mpc_ui_div_dart>('mpc_ui_div');
+
+// Definir a função mpc_fr_div
+typedef mpc_fr_div_native = Int Function(Pointer<mpc_t>, Pointer<mpfr_t>, Pointer<mpc_t>, Int);
+typedef mpc_fr_div_dart = int Function(Pointer<mpc_t>, Pointer<mpfr_t>, Pointer<mpc_t>, int);
+final mpc_fr_div_dart mpc_fr_div = mpcLib.lookupFunction<mpc_fr_div_native, mpc_fr_div_dart>('mpc_fr_div');
+
+// Definir a função mpc_sqrt
+typedef mpc_sqrt_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_sqrt_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_sqrt_dart mpc_sqrt = mpcLib.lookupFunction<mpc_sqrt_native, mpc_sqrt_dart>('mpc_sqrt');
+
+// Definir a função mpc_pow
+typedef mpc_pow_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_pow_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_pow_dart mpc_pow = mpcLib.lookupFunction<mpc_pow_native, mpc_pow_dart>('mpc_pow');
+
+// Definir a função mpc_pow_ui
+typedef mpc_pow_ui_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, UnsignedLong, Int);
+typedef mpc_pow_ui_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_pow_ui_dart mpc_pow_ui = mpcLib.lookupFunction<mpc_pow_ui_native, mpc_pow_ui_dart>('mpc_pow_ui');
+
+// Definir a função mpc_pow_si
+typedef mpc_pow_si_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Long, Int);
+typedef mpc_pow_si_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int, int);
+final mpc_pow_si_dart mpc_pow_si = mpcLib.lookupFunction<mpc_pow_si_native, mpc_pow_si_dart>('mpc_pow_si');
+
+// Definir a função mpc_pow_fr
+typedef mpc_pow_fr_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, Int);
+typedef mpc_pow_fr_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, Pointer<mpfr_t>, int);
+final mpc_pow_fr_dart mpc_pow_fr = mpcLib.lookupFunction<mpc_pow_fr_native, mpc_pow_fr_dart>('mpc_pow_fr');
+
+// Definir a função mpc_pow_d
+typedef mpc_pow_d_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Double, Int);
+typedef mpc_pow_d_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, double, int);
+final mpc_pow_d_dart mpc_pow_d = mpcLib.lookupFunction<mpc_pow_d_native, mpc_pow_d_dart>('mpc_pow_d');
+
+// Definir a função mpc_exp
+typedef mpc_exp_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_exp_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_exp_dart mpc_exp = mpcLib.lookupFunction<mpc_exp_native, mpc_exp_dart>('mpc_exp');
+
+// Definir a função mpc_log
+typedef mpc_log_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_log_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_log_dart mpc_log = mpcLib.lookupFunction<mpc_log_native, mpc_log_dart>('mpc_log');
+
+// Definir a função mpc_log10
+typedef mpc_log10_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_log10_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_log10_dart mpc_log10 = mpcLib.lookupFunction<mpc_log10_native, mpc_log10_dart>('mpc_log10');
+
+// Definir a função mpc_sin
+typedef mpc_sin_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_sin_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_sin_dart mpc_sin = mpcLib.lookupFunction<mpc_sin_native, mpc_sin_dart>('mpc_sin');
+
+// Definir a função mpc_cos
+typedef mpc_cos_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_cos_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_cos_dart mpc_cos = mpcLib.lookupFunction<mpc_cos_native, mpc_cos_dart>('mpc_cos');
+
+// Definir a função mpc_tan
+typedef mpc_tan_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_tan_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_tan_dart mpc_tan = mpcLib.lookupFunction<mpc_tan_native, mpc_tan_dart>('mpc_tan');
+
+// Definir a função mpc_sinh
+typedef mpc_sinh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_sinh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_sinh_dart mpc_sinh = mpcLib.lookupFunction<mpc_sinh_native, mpc_sinh_dart>('mpc_sinh');
+
+// Definir a função mpc_cosh
+typedef mpc_cosh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_cosh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_cosh_dart mpc_cosh = mpcLib.lookupFunction<mpc_cosh_native, mpc_cosh_dart>('mpc_cosh');
+
+// Definir a função mpc_tanh
+typedef mpc_tanh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_tanh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_tanh_dart mpc_tanh = mpcLib.lookupFunction<mpc_tanh_native, mpc_tanh_dart>('mpc_tanh');
+
+// Definir a função mpc_asin
+typedef mpc_asin_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_asin_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_asin_dart mpc_asin = mpcLib.lookupFunction<mpc_asin_native, mpc_asin_dart>('mpc_asin');
+
+// Definir a função mpc_acos
+typedef mpc_acos_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_acos_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_acos_dart mpc_acos = mpcLib.lookupFunction<mpc_acos_native, mpc_acos_dart>('mpc_acos');
+
+// Definir a função mpc_atan
+typedef mpc_atan_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_atan_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_atan_dart mpc_atan = mpcLib.lookupFunction<mpc_atan_native, mpc_atan_dart>('mpc_atan');
+
+// Definir a função mpc_asinh
+typedef mpc_asinh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_asinh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_asinh_dart mpc_asinh = mpcLib.lookupFunction<mpc_asinh_native, mpc_asinh_dart>('mpc_asinh');
+
+// Definir a função mpc_acosh
+typedef mpc_acosh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_acosh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_acosh_dart mpc_acosh = mpcLib.lookupFunction<mpc_acosh_native, mpc_acosh_dart>('mpc_acosh');
+
+// Definir a função mpc_atanh
+typedef mpc_atanh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_atanh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_atanh_dart mpc_atanh = mpcLib.lookupFunction<mpc_atanh_native, mpc_atanh_dart>('mpc_atanh');
+
+
 class Complex {
   late Pointer<mpc_t> _complex;
 
@@ -242,6 +443,18 @@ class Complex {
     mpfr_set(mpfrPtr, mpfrRealPtr, MPFRRound.RNDN);
 
     return temp;
+  }
+
+  // Retorna a parte real do número complexo como um double
+  double getRealDouble() {
+    Pointer<mpfr_t> mpfrRealPtr = getRealPointer();
+    return mpfr_get_d(mpfrRealPtr, MPFRRound.RNDN);
+  }
+
+  // Retorna a parte imaginária do número complexo como um double
+  double getImaginaryDouble() {
+    Pointer<mpfr_t> mpfrImagPtr = getImaginaryPointer();
+    return mpfr_get_d(mpfrImagPtr, MPFRRound.RNDN);
   }
 
   // Retorna o valor do número complexo como string

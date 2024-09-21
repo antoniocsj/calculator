@@ -50,6 +50,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     print('complex: ${x.getString()}');
 
+    print('real: ${x.getRealDouble()}');
+    print('imag: ${x.getImaginaryDouble()}');
+
     x.dispose();
   }
 

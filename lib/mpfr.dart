@@ -9,6 +9,7 @@ import 'dart:math' as math;
 // mpfr_sign_t -> Int
 // mpfr_srcptr -> Pointer<mpfr_t>
 // mpfr_ptr -> Pointer<mpfr_t>
+// size_t -> UnsignedLong -> int
 
 final class mpfr_t extends Struct {
   @Long()
