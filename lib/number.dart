@@ -7,99 +7,114 @@ class Number {
   static int precision = 1000;
   static String? error;
 
-  late Complex num;
+  late Complex _num;
 
-  Number.integer(int real, [int imag = 0]) {
-    num = Complex.fromInt(real, imag);
+  // Construtor padrão
+  Number() {
+    _num = Complex(precision);
   }
 
-  Number.unsignedInteger(int real, [int imag = 0]) {
-    num = Complex.fromUnsignedInt(real, imag);
+  Number.fromInt(int real, [int imag = 0]) {
+    _num = Complex.fromInt(real, imag, precision);
   }
 
-  Number.fraction(int numerator, int denominator) {
+  Number.fromUInt(int real, [int imag = 0]) {
+    _num = Complex.fromUInt(real, imag, precision);
+  }
+
+  Number.fromFraction(int numerator, int denominator) {
     if (denominator < 0) {
-      // Handle negative denominator
+      numerator = -numerator;
+      denominator = -denominator;
     }
-    num = Complex.fromFraction(numerator, denominator);
+    _num = Complex.fromInt(numerator, precision);
+    _num = _num.divide(Complex.fromInt(denominator, precision));
   }
 
   Number.mpreal(MPFRReal real, [MPFRReal? imag]) {
-    num = Complex.fromMPReal(real, imag);
+    _num = Complex.fromMPReal(real, imag);
   }
 
   Number.double(double real, [double imag = 0]) {
-    num = Complex.fromDouble(real, imag);
+    _num = Complex.fromDouble(real, imag);
   }
 
   Number.complex(Number r, Number i) {
-    num = Complex.fromComplex(r.num, i.num);
+    _num = Complex.fromComplex(r._num, i._num);
   }
 
   Number.polar(Number r, Number theta, [AngleUnit unit = AngleUnit.radians]) {
     var x = theta.cos(unit);
     var y = theta.sin(unit);
-    num = Complex.fromPolar(x.multiply(r), y.multiply(r));
+    _num = Complex.fromPolar(x.multiply(r), y.multiply(r));
   }
 
   Number.eulers() {
-    num = Complex.eulers();
+    _num = Complex.eulers();
   }
 
   Number.i() {
-    num = Complex.i();
+    _num = Complex.i();
   }
 
   Number.pi() {
-    num = Complex.pi();
+    _num = Complex.pi();
   }
 
   Number.tau() {
-    num = Complex.tau();
+    _num = Complex.tau();
   }
 
   Number.random() {
-    num = Complex.random();
+    _num = Complex.random();
+  }
+
+  // Getter para a precisão
+  int get getPrecision => precision;
+
+  // Setter para a precisão
+  set setPrecision(int value) {
+    precision = value;
   }
 
   int toInteger() {
-    return num.toInteger();
+    return _num.toInteger();
   }
 
   int toUnsignedInteger() {
-    return num.toUnsignedInteger();
+    return _num.toUnsignedInteger();
   }
 
   double toFloat() {
-    return num.toFloat();
+    return _num.toFloat();
   }
 
   double toDouble() {
-    return num.toDouble();
+    return _num.toDouble();
   }
 
   bool isZero() {
-    return num.isZero();
+    return _num.isZero();
   }
 
   bool isNegative() {
-    return num.isNegative();
+    return _num.isNegative();
   }
 
   bool isInteger() {
-    return num.isInteger();
+    return _num.isInteger();
   }
 
   bool isPositiveInteger() {
-    return num.isPositiveInteger();
+    return _num.isPositiveInteger();
   }
 
   bool isNatural() {
-    return num.isNatural();
+    return _num.isNatural();
   }
 
   bool isComplex() {
-    return num.isComplex();
+    return _num.isComplex();
   }
 
   static void checkFlags() {
@@ -111,62 +126,62 @@ class Number {
   }
 
   bool equals(Number y) {
-    return num.equals(y.num);
+    return _num.equals(y._num);
   }
 
   int compare(Number y) {
-    return num.compare(y.num);
+    return _num.compare(y._num);
   }
 
   Number sgn() {
-    return Number.integer(num.sgn());
+    return Number.integer(_num.sgn());
   }
 
   Number invertSign() {
     var z = Number();
-    z.num = num.invertSign();
+    z._num = _num.invertSign();
     return z;
   }
 
   Number abs() {
     var z = Number();
-    z.num = num.abs();
+    z._num = _num.abs();
     return z;
   }
 
   Number arg([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.arg(unit);
+    z._num = _num.arg(unit);
     return z;
   }
 
   Number conjugate() {
     var z = Number();
-    z.num = num.conjugate();
+    z._num = _num.conjugate();
     return z;
   }
 
   Number realComponent() {
     var z = Number();
-    z.num = num.realComponent();
+    z._num = _num.realComponent();
     return z;
   }
 
   Number imaginaryComponent() {
     var z = Number();
-    z.num = num.imaginaryComponent();
+    z._num = _num.imaginaryComponent();
     return z;
   }
 
   Number integerComponent() {
     var z = Number();
-    z.num = num.integerComponent();
+    z._num = _num.integerComponent();
     return z;
   }
 
   Number fractionalComponent() {
     var z = Number();
-    z.num = num.fractionalComponent();
+    z._num = _num.fractionalComponent();
     return z;
   }
 
@@ -176,49 +191,49 @@ class Number {
 
   Number floor() {
     var z = Number();
-    z.num = num.floor();
+    z._num = _num.floor();
     return z;
   }
 
   Number ceiling() {
     var z = Number();
-    z.num = num.ceiling();
+    z._num = _num.ceiling();
     return z;
   }
 
   Number round() {
     var z = Number();
-    z.num = num.round();
+    z._num = _num.round();
     return z;
   }
 
   Number reciprocal() {
     var z = Number();
-    z.num = num.reciprocal();
+    z._num = _num.reciprocal();
     return z;
   }
 
   Number epowy() {
     var z = Number();
-    z.num = num.epowy();
+    z._num = _num.epowy();
     return z;
   }
 
   Number xpowy(Number y) {
     var z = Number();
-    z.num = num.xpowy(y.num);
+    z._num = _num.xpowy(y._num);
     return z;
   }
 
   Number xpowyInteger(int n) {
     var z = Number();
-    z.num = num.xpowyInteger(n);
+    z._num = _num.xpowyInteger(n);
     return z;
   }
 
   Number root(int n) {
     var z = Number();
-    z.num = num.root(n);
+    z._num = _num.root(n);
     return z;
   }
 
@@ -228,49 +243,49 @@ class Number {
 
   Number ln() {
     var z = Number();
-    z.num = num.ln();
+    z._num = _num.ln();
     return z;
   }
 
   Number logarithm(int n) {
     var z = Number();
-    z.num = num.logarithm(n);
+    z._num = _num.logarithm(n);
     return z;
   }
 
   Number factorial() {
     var z = Number();
-    z.num = num.factorial();
+    z._num = _num.factorial();
     return z;
   }
 
   Number add(Number y) {
     var z = Number();
-    z.num = num.add(y.num);
+    z._num = _num.add(y._num);
     return z;
   }
 
   Number subtract(Number y) {
     var z = Number();
-    z.num = num.subtract(y.num);
+    z._num = _num.subtract(y._num);
     return z;
   }
 
   Number multiply(Number y) {
     var z = Number();
-    z.num = num.multiply(y.num);
+    z._num = _num.multiply(y._num);
     return z;
   }
 
   Number multiplyInteger(int y) {
     var z = Number();
-    z.num = num.multiplyInteger(y);
+    z._num = _num.multiplyInteger(y);
     return z;
   }
 
   Number divide(Number y) {
     var z = Number();
-    z.num = num.divide(y.num);
+    z._num = _num.divide(y._num);
     return z;
   }
 
@@ -280,154 +295,154 @@ class Number {
 
   Number modulusDivide(Number y) {
     var z = Number();
-    z.num = num.modulusDivide(y.num);
+    z._num = _num.modulusDivide(y._num);
     return z;
   }
 
   Number modularExponentiation(Number exp, Number mod) {
     var z = Number();
-    z.num = num.modularExponentiation(exp.num, mod.num);
+    z._num = _num.modularExponentiation(exp._num, mod._num);
     return z;
   }
 
   Number sin([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.sin(unit);
+    z._num = _num.sin(unit);
     return z;
   }
 
   Number cos([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.cos(unit);
+    z._num = _num.cos(unit);
     return z;
   }
 
   Number tan([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.tan(unit);
+    z._num = _num.tan(unit);
     return z;
   }
 
   Number asin([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.asin(unit);
+    z._num = _num.asin(unit);
     return z;
   }
 
   Number acos([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.acos(unit);
+    z._num = _num.acos(unit);
     return z;
   }
 
   Number atan([AngleUnit unit = AngleUnit.radians]) {
     var z = Number();
-    z.num = num.atan(unit);
+    z._num = _num.atan(unit);
     return z;
   }
 
   Number sinh() {
     var z = Number();
-    z.num = num.sinh();
+    z._num = _num.sinh();
     return z;
   }
 
   Number cosh() {
     var z = Number();
-    z.num = num.cosh();
+    z._num = _num.cosh();
     return z;
   }
 
   Number tanh() {
     var z = Number();
-    z.num = num.tanh();
+    z._num = _num.tanh();
     return z;
   }
 
   Number asinh() {
     var z = Number();
-    z.num = num.asinh();
+    z._num = _num.asinh();
     return z;
   }
 
   Number acosh() {
     var z = Number();
-    z.num = num.acosh();
+    z._num = _num.acosh();
     return z;
   }
 
   Number atanh() {
     var z = Number();
-    z.num = num.atanh();
+    z._num = _num.atanh();
     return z;
   }
 
   Number and(Number y) {
     var z = Number();
-    z.num = num.and(y.num);
+    z._num = _num.and(y._num);
     return z;
   }
 
   Number or(Number y) {
     var z = Number();
-    z.num = num.or(y.num);
+    z._num = _num.or(y._num);
     return z;
   }
 
   Number xor(Number y) {
     var z = Number();
-    z.num = num.xor(y.num);
+    z._num = _num.xor(y._num);
     return z;
   }
 
   Number not(int wordlen) {
     var z = Number();
-    z.num = num.not(wordlen);
+    z._num = _num.not(wordlen);
     return z;
   }
 
   Number mask(Number x, int wordlen) {
     var z = Number();
-    z.num = num.mask(x.num, wordlen);
+    z._num = _num.mask(x._num, wordlen);
     return z;
   }
 
   Number shift(int count) {
     var z = Number();
-    z.num = num.shift(count);
+    z._num = _num.shift(count);
     return z;
   }
 
   Number onesComplement(int wordlen) {
     var z = Number();
-    z.num = num.onesComplement(wordlen);
+    z._num = _num.onesComplement(wordlen);
     return z;
   }
 
   Number twosComplement(int wordlen) {
     var z = Number();
-    z.num = num.twosComplement(wordlen);
+    z._num = _num.twosComplement(wordlen);
     return z;
   }
 
   bool isSprp(Number p, int b) {
-    return num.isSprp(p.num, b);
+    return _num.isSprp(p._num, b);
   }
 
   bool isPrime(Number x) {
-    return num.isPrime(x.num);
+    return _num.isPrime(x._num);
   }
 
   List<Number> factorize() {
-    return num.factorize().map((e) => Number.fromComplex(e)).toList();
+    return _num.factorize().map((e) => Number.fromComplex(e)).toList();
   }
 
   List<Number> factorizeUint64(int n) {
-    return num.factorizeUint64(n).map((e) => Number.fromComplex(e)).toList();
+    return _num.factorizeUint64(n).map((e) => Number.fromComplex(e)).toList();
   }
 
   Number copy() {
-    return Number.fromComplex(num.copy());
+    return Number.fromComplex(_num.copy());
   }
 
   static void mpcFromRadians(Complex res, Complex op, AngleUnit unit) {
@@ -439,19 +454,19 @@ class Number {
   }
 
   Number toRadians(AngleUnit unit) {
-    return Number.fromComplex(num.toRadians(unit));
+    return Number.fromComplex(_num.toRadians(unit));
   }
 
   Number bitwise(Number y, BitwiseFunc bitwiseOperator, int wordlen) {
-    return Number.fromComplex(num.bitwise(y.num, bitwiseOperator, wordlen));
+    return Number.fromComplex(_num.bitwise(y._num, bitwiseOperator, wordlen));
   }
 
   int hexToInt(String digit) {
-    return num.hexToInt(digit);
+    return _num.hexToInt(digit);
   }
 
   String toHexString() {
-    return num.toHexString();
+    return _num.toHexString();
   }
 
   static int parseLiteralPrefix(String str, int prefixLen) {
@@ -459,18 +474,18 @@ class Number {
   }
 
   Number? mpSetFromString(String str, [int defaultBase = 10, bool mayHavePrefix = true]) {
-    return Number.fromComplex(num.mpSetFromString(str, defaultBase, mayHavePrefix));
+    return Number.fromComplex(_num.mpSetFromString(str, defaultBase, mayHavePrefix));
   }
 
   int charVal(String c, int numberBase) {
-    return num.charVal(c, numberBase);
+    return _num.charVal(c, numberBase);
   }
 
   Number? setFromSexagesimal(String str) {
-    return Number.fromComplex(num.setFromSexagesimal(str));
+    return Number.fromComplex(_num.setFromSexagesimal(str));
   }
 
   bool mpIsOverflow(Number x, int wordlen) {
-    return num.mpIsOverflow(x.num, wordlen);
+    return _num.mpIsOverflow(x._num, wordlen);
   }
 }

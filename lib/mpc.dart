@@ -381,6 +381,51 @@ typedef mpc_atanh_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
 typedef mpc_atanh_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
 final mpc_atanh_dart mpc_atanh = mpcLib.lookupFunction<mpc_atanh_native, mpc_atanh_dart>('mpc_atanh');
 
+// Definir a função mpc_cmp
+typedef mpc_cmp_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_cmp_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_cmp_dart mpc_cmp = mpcLib.lookupFunction<mpc_cmp_native, mpc_cmp_dart>('mpc_cmp');
+
+// Definir a função mpc_cmp_si_si
+typedef mpc_cmp_si_si_native = Int Function(Pointer<mpc_t>, Long, Long);
+typedef mpc_cmp_si_si_dart = int Function(Pointer<mpc_t>, int, int);
+final mpc_cmp_si_si_dart mpc_cmp_si_si = mpcLib.lookupFunction<mpc_cmp_si_si_native, mpc_cmp_si_si_dart>('mpc_cmp_si_si');
+
+// Definir a função mpc_cmp_si
+typedef mpc_cmp_si_native = Int Function(Pointer<mpc_t>, Long);
+typedef mpc_cmp_si_dart = int Function(Pointer<mpc_t>, int);
+final mpc_cmp_si_dart mpc_cmp_si = mpcLib.lookupFunction<mpc_cmp_si_native, mpc_cmp_si_dart>('mpc_cmp_si');
+
+// Definir a função mpc_cmp_abs
+typedef mpc_cmp_abs_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>);
+typedef mpc_cmp_abs_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>);
+final mpc_cmp_abs_dart mpc_cmp_abs = mpcLib.lookupFunction<mpc_cmp_abs_native, mpc_cmp_abs_dart>('mpc_cmp_abs');
+
+// Definir a função mpc_real
+typedef mpc_real_native = Int Function(Pointer<mpfr_t>, Pointer<mpc_t>, Int);
+typedef mpc_real_dart = int Function(Pointer<mpfr_t>, Pointer<mpc_t>, int);
+final mpc_real_dart mpc_real = mpcLib.lookupFunction<mpc_real_native, mpc_real_dart>('mpc_real');
+
+// Definir a função mpc_imag
+typedef mpc_imag_native = Int Function(Pointer<mpfr_t>, Pointer<mpc_t>, Int);
+typedef mpc_imag_dart = int Function(Pointer<mpfr_t>, Pointer<mpc_t>, int);
+final mpc_imag_dart mpc_imag = mpcLib.lookupFunction<mpc_imag_native, mpc_imag_dart>('mpc_imag');
+
+// Definir a função mpc_realref
+typedef mpc_realref_native = Pointer<mpfr_t> Function(Pointer<mpc_t>);
+typedef mpc_realref_dart = Pointer<mpfr_t> Function(Pointer<mpc_t>);
+final mpc_realref_dart mpc_realref = mpcLib.lookupFunction<mpc_realref_native, mpc_realref_dart>('mpc_realref');
+
+// Definir a função mpc_imagref
+typedef mpc_imagref_native = Pointer<mpfr_t> Function(Pointer<mpc_t>);
+typedef mpc_imagref_dart = Pointer<mpfr_t> Function(Pointer<mpc_t>);
+final mpc_imagref_dart mpc_imagref = mpcLib.lookupFunction<mpc_imagref_native, mpc_imagref_dart>('mpc_imagref');
+
+// Definir a função mpc_conj
+typedef mpc_conj_native = Int Function(Pointer<mpc_t>, Pointer<mpc_t>, Int);
+typedef mpc_conj_dart = int Function(Pointer<mpc_t>, Pointer<mpc_t>, int);
+final mpc_conj_dart mpc_conj = mpcLib.lookupFunction<mpc_conj_native, mpc_conj_dart>('mpc_conj');
+
 
 class Complex {
   late Pointer<mpc_t> _complex;
@@ -400,21 +445,42 @@ class Complex {
     return _complex.cast<mpfr_t>()+1;
   }
 
-  final int _precision = 256; // Precisão padrão de 256 bits
+  final int _precision; // Precisão do número complexo
 
   // Getter para acessar a precisão do número complexo
   int get precision => _precision;
 
-  Complex() {
+  Complex([this._precision = 256]) {
     _complex = calloc<mpc_t>();
     mpc_init2(_complex, _precision);
   }
 
   // Construtor a partir de dois doubles
-  Complex.fromDouble(double real, double imaginary) {
+  Complex.fromDouble(double real, double imaginary, [this._precision = 256]) {
     _complex = calloc<mpc_t>();
     mpc_init2(_complex, _precision);
     mpc_set_d_d(_complex, real, imaginary, MPCRound.MPC_RNDNN);
+  }
+
+  // Construtor a partir de dois inteiros com sinal
+  Complex.fromInt(int real, int imaginary, [this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    mpc_set_si_si(_complex, real, imaginary, MPCRound.MPC_RNDNN);
+  }
+
+  // Construtor a partir de dois inteiros sem sinal
+  Complex.fromUInt(int real, int imaginary, [this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    mpc_set_ui_ui(_complex, real, imaginary, MPCRound.MPC_RNDNN);
+  }
+
+  // Construtor a partir de dois objetos Real
+  Complex.fromReal(Real real, Real imaginary, [this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    mpc_set_fr_fr(_complex, real.getPointer(), imaginary.getPointer(), MPCRound.MPC_RNDNN);
   }
 
   // Destrutor
@@ -426,7 +492,7 @@ class Complex {
   // Retorna a parte real do número complexo como um objeto Real
   Real getReal() {
     Pointer<mpfr_t> mpfrRealPtr = getRealPointer();
-    Real temp = Real();
+    Real temp = Real(precision);
 
     Pointer<mpfr_t> mpfrPtr = temp.getPointer();
     mpfr_set(mpfrPtr, mpfrRealPtr, MPFRRound.RNDN);
@@ -437,7 +503,7 @@ class Complex {
   // Retorna a parte imaginária do número complexo como um objeto Real
   Real getImaginary() {
     Pointer<mpfr_t> mpfrRealPtr = getImaginaryPointer();
-    Real temp = Real();
+    Real temp = Real(precision);
 
     Pointer<mpfr_t> mpfrPtr = temp.getPointer();
     mpfr_set(mpfrPtr, mpfrRealPtr, MPFRRound.RNDN);
@@ -475,5 +541,59 @@ class Complex {
     String strImag = imag.getString(round);
 
     return '($strReal, $strImag)';
+  }
+
+  bool isZero() {
+    int res = mpc_cmp_si_si(_complex, 0, 0);
+    return MPCInexact.inexRe(res) == 0 && MPCInexact.inexIm(res) == 0;
+  }
+
+  bool isEqual(Complex other) {
+    int res = mpc_cmp(_complex, other.getPointer(), MPCRound.MPC_RNDNN);
+    return MPCInexact.inexRe(res) == 0 && MPCInexact.inexIm(res) == 0;
+  }
+
+  int cmp(Complex other) {
+    return mpc_cmp(_complex, other.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int cmpIntInt(int real, int imag) {
+    return mpc_cmp_si_si(_complex, real, imag);
+  }
+
+  int add(Complex a, Complex b) {
+    return mpc_add(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int subtract(Complex a, Complex b) {
+    return mpc_sub(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int multiply(Complex a, Complex b) {
+    return mpc_mul(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int multiplyInt(Complex a, int b) {
+    return mpc_mul_si(_complex, a.getPointer(), b, MPCRound.MPC_RNDNN);
+  }
+
+  int multiplyReal(Complex a, Real b) {
+    return mpc_mul_fr(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int divide(Complex a, Complex b) {
+    return mpc_div(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int divideUInt(Complex a, int b) {
+    return mpc_div_ui(_complex, a.getPointer(), b, MPCRound.MPC_RNDNN);
+  }
+
+  int uIntDivide(int a, Complex b) {
+    return mpc_ui_div(_complex, a, b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int negate(Complex a) {
+    return mpc_neg(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
   }
 }

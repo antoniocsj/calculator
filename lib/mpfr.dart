@@ -531,7 +531,7 @@ class Real {
     return _number;
   }
 
-  final int _precision = 256; // precisão padrão em bits. 256 bits = 77 dígitos decimais
+  final int _precision; // precisão em bits
 
   // Getter para a precisão
   int get precision => _precision;
@@ -568,34 +568,41 @@ class Real {
   }
 
   // Construtor
-  Real() {
+  Real(this._precision) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, _precision);
   }
 
   // Construtor a partir de um double
-  Real.fromDouble(double value) {
+  Real.fromDouble(double value, this._precision) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, _precision);
     mpfr_set_d(_number, value, MPFRRound.RNDN);
   }
 
-  // Construtor a partir de um inteiro
-  Real.fromInt(int value)  {
+  // Construtor a partir de um inteiro com sinal
+  Real.fromInt(int value, this._precision)  {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, _precision);
     mpfr_set_si(_number, value, MPFRRound.RNDN);
   }
 
+  // Construtor a partir de um inteiro sem sinal
+  Real.fromUInt(int value, this._precision) {
+    _number = calloc<mpfr_t>();
+    mpfr_init2(_number, _precision);
+    mpfr_set_ui(_number, value, MPFRRound.RNDN);
+  }
+
   // Construtor a partir de uma string
-  Real.fromString(String value, int base) {
+  Real.fromString(String value, int base, this._precision) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, _precision);
     mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), base, MPFRRound.RNDN);
   }
 
   // Construtor a partir de outro número real
-  Real.fromReal(Real value) {
+  Real.fromReal(Real value, this._precision) {
     _number = calloc<mpfr_t>();
     mpfr_init2(_number, value._precision);
     mpfr_set(_number, value._number, MPFRRound.RNDN);

@@ -40,6 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void test_with_numbers() {
     Complex x = Complex.fromDouble(-3.6, 2.0);
 
+    print('precision: ${x.precision}');
+
     Real realPart = x.getReal();
     print('real: ${realPart.getDouble()}');
     realPart.dispose();
