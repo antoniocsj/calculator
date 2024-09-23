@@ -1,4 +1,5 @@
 import 'package:calculator/enums.dart';
+import 'package:calculator/mpfr.dart';
 import 'package:calculator/mpc.dart';
 
 
@@ -8,6 +9,14 @@ class Number {
   static String? error;
 
   late Complex _num;
+
+  // Getter para a precisão
+  int get getPrecision => precision;
+
+  // Setter para a precisão
+  set setPrecision(int value) {
+    precision = value;
+  }
 
   // Construtor padrão
   Number() {
@@ -28,11 +37,11 @@ class Number {
       denominator = -denominator;
     }
     _num = Complex.fromInt(numerator, precision);
-    _num = _num.divide(Complex.fromInt(denominator, precision));
+    _num.divideUInt(_num, denominator);
   }
 
-  Number.mpreal(MPFRReal real, [MPFRReal? imag]) {
-    _num = Complex.fromMPReal(real, imag);
+  Number.fromReal(Real real, [Real? imag]) {
+    _num = Complex.fromReal(real, imag, precision);
   }
 
   Number.double(double real, [double imag = 0]) {
@@ -69,12 +78,8 @@ class Number {
     _num = Complex.random();
   }
 
-  // Getter para a precisão
-  int get getPrecision => precision;
-
-  // Setter para a precisão
-  set setPrecision(int value) {
-    precision = value;
+  void dispose() {
+    _num.dispose();
   }
 
   int toInteger() {

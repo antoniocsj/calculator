@@ -37,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String resultado = '';
   String resultado2 = '';
 
-  void test_with_numbers() {
+  void test_1() {
     Complex x = Complex.fromDouble(-3.6, 2.0);
 
     print('precision: ${x.precision}');
@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  test_with_numbers();
+                  test_1();
                 });
               },
               child: const Text('Calcular'),

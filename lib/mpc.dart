@@ -450,6 +450,11 @@ class Complex {
   // Getter para acessar a precisão do número complexo
   int get precision => _precision;
 
+  // Setter para alterar o número complexo
+  set complex(Pointer<mpc_t> complex) {
+    mpc_set(_complex, complex, MPCRound.MPC_RNDNN);
+  }
+
   Complex([this._precision = 256]) {
     _complex = calloc<mpc_t>();
     mpc_init2(_complex, _precision);
@@ -477,10 +482,15 @@ class Complex {
   }
 
   // Construtor a partir de dois objetos Real
-  Complex.fromReal(Real real, Real imaginary, [this._precision = 256]) {
+  Complex.fromReal(Real real, Real? imaginary, [this._precision = 256]) {
     _complex = calloc<mpc_t>();
     mpc_init2(_complex, _precision);
-    mpc_set_fr_fr(_complex, real.getPointer(), imaginary.getPointer(), MPCRound.MPC_RNDNN);
+
+    if (imaginary == null) {
+      mpc_set_fr(_complex, real.getPointer(), MPCRound.MPC_RNDNN);
+    } else {
+      mpc_set_fr_fr(_complex, real.getPointer(), imaginary.getPointer(), MPCRound.MPC_RNDNN);
+    }
   }
 
   // Destrutor
@@ -541,6 +551,26 @@ class Complex {
     String strImag = imag.getString(round);
 
     return '($strReal, $strImag)';
+  }
+
+  int setReal(Real real, Real? imag) {
+    if (imag == null) {
+      return mpc_set_fr(_complex, real.getPointer(), MPCRound.MPC_RNDNN);
+    } else {
+      return mpc_set_fr_fr(_complex, real.getPointer(), imag.getPointer(), MPCRound.MPC_RNDNN);
+    }
+  }
+
+  int setDouble(double real, [double imag = 0.0]) {
+    return mpc_set_d_d(_complex, real, imag, MPCRound.MPC_RNDNN);
+  }
+
+  int setInt(int real, [int imag = 0]) {
+    return mpc_set_si_si(_complex, real, imag, MPCRound.MPC_RNDNN);
+  }
+
+  int setUInt(int real, [int imag = 0]) {
+    return mpc_set_ui_ui(_complex, real, imag, MPCRound.MPC_RNDNN);
   }
 
   bool isZero() {
