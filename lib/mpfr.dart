@@ -608,6 +608,13 @@ class Real {
     mpfr_set(_number, value._number, MPFRRound.RNDN);
   }
 
+  // Construtor da constante de Euler
+  Real.eulers(this._precision) {
+    _number = calloc<mpfr_t>();
+    mpfr_init2(_number, _precision);
+    mpfr_const_euler(_number, MPFRRound.RNDN);
+  }
+
   // Destrutor
   void dispose() {
     mpfr_clear(_number);

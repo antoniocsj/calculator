@@ -461,10 +461,17 @@ class Complex {
   }
 
   // Construtor a partir de dois doubles
-  Complex.fromDouble(double real, double imaginary, [this._precision = 256]) {
+  Complex.fromDouble(double real, [double imaginary = 0, this._precision = 256]) {
     _complex = calloc<mpc_t>();
     mpc_init2(_complex, _precision);
-    mpc_set_d_d(_complex, real, imaginary, MPCRound.MPC_RNDNN);
+    setDouble(real, imaginary);
+  }
+
+  // Construtor a partir de dois complexos
+  Complex.fromComplex(Complex re, Complex imag, [this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    setReal(re.getReal(), imag.getReal());
   }
 
   // Construtor a partir de dois inteiros com sinal
@@ -485,12 +492,16 @@ class Complex {
   Complex.fromReal(Real real, Real? imaginary, [this._precision = 256]) {
     _complex = calloc<mpc_t>();
     mpc_init2(_complex, _precision);
+    setReal(real, imaginary);
+  }
 
-    if (imaginary == null) {
-      mpc_set_fr(_complex, real.getPointer(), MPCRound.MPC_RNDNN);
-    } else {
-      mpc_set_fr_fr(_complex, real.getPointer(), imaginary.getPointer(), MPCRound.MPC_RNDNN);
-    }
+  // Construtor da constante de Euler
+  Complex.eulers([this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    setInt(0, 0);
+    var rePtr = getRealPointer();
+    mpfr_const_euler(rePtr, MPFRRound.RNDN);
   }
 
   // Destrutor
@@ -553,24 +564,24 @@ class Complex {
     return '($strReal, $strImag)';
   }
 
-  int setReal(Real real, Real? imag) {
+  int setReal(Real real, [Real? imag, int round = MPFRRound.RNDN]) {
     if (imag == null) {
-      return mpc_set_fr(_complex, real.getPointer(), MPCRound.MPC_RNDNN);
+      return mpc_set_fr(_complex, real.getPointer(), round);
     } else {
-      return mpc_set_fr_fr(_complex, real.getPointer(), imag.getPointer(), MPCRound.MPC_RNDNN);
+      return mpc_set_fr_fr(_complex, real.getPointer(), imag.getPointer(), round);
     }
   }
 
-  int setDouble(double real, [double imag = 0.0]) {
-    return mpc_set_d_d(_complex, real, imag, MPCRound.MPC_RNDNN);
+  int setDouble(double real, [double imag = 0.0, int round = MPFRRound.RNDN]) {
+    return mpc_set_d_d(_complex, real, imag, round);
   }
 
-  int setInt(int real, [int imag = 0]) {
-    return mpc_set_si_si(_complex, real, imag, MPCRound.MPC_RNDNN);
+  int setInt(int real, [int imag = 0, int round = MPFRRound.RNDN]) {
+    return mpc_set_si_si(_complex, real, imag, round);
   }
 
-  int setUInt(int real, [int imag = 0]) {
-    return mpc_set_ui_ui(_complex, real, imag, MPCRound.MPC_RNDNN);
+  int setUInt(int real, [int imag = 0, int round = MPFRRound.RNDN]) {
+    return mpc_set_ui_ui(_complex, real, imag, round);
   }
 
   bool isZero() {

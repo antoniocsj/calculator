@@ -44,30 +44,31 @@ class Number {
     _num = Complex.fromReal(real, imag, precision);
   }
 
-  Number.double(double real, [double imag = 0]) {
-    _num = Complex.fromDouble(real, imag);
+  Number.fromDouble(double real, [double imag = 0]) {
+    _num = Complex.fromDouble(real, imag, precision);
   }
 
-  Number.complex(Number r, Number i) {
+  Number.fromComplex(Number r, Number i) {
     _num = Complex.fromComplex(r._num, i._num);
   }
 
   Number.polar(Number r, Number theta, [AngleUnit unit = AngleUnit.radians]) {
-    var x = theta.cos(unit);
-    var y = theta.sin(unit);
-    _num = Complex.fromPolar(x.multiply(r), y.multiply(r));
+    var x = theta.cos(unit).multiply(r);
+    var y = theta.sin(unit).multiply(r);
+    _num = Complex.fromComplex(x._num, y._num);
   }
 
+  // // Construtor da constante de Euler
   Number.eulers() {
-    _num = Complex.eulers();
+
   }
 
   Number.i() {
-    _num = Complex.i();
+    _num = Complex.fromInt(0, 1, precision);
   }
 
   Number.pi() {
-    _num = Complex.pi();
+
   }
 
   Number.tau() {
