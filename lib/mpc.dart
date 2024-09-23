@@ -604,4 +604,100 @@ class Complex {
   int negate(Complex a) {
     return mpc_neg(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
   }
+
+  int power(Complex a, Complex b) {
+    return mpc_pow(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int powerInt(Complex a, int b) {
+    return mpc_pow_si(_complex, a.getPointer(), b, MPCRound.MPC_RNDNN);
+  }
+
+  int powerUInt(Complex a, int b) {
+    return mpc_pow_ui(_complex, a.getPointer(), b, MPCRound.MPC_RNDNN);
+  }
+
+  int powerReal(Complex a, Real b) {
+    return mpc_pow_fr(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int powerDouble(Complex a, double b) {
+    return mpc_pow_d(_complex, a.getPointer(), b, MPCRound.MPC_RNDNN);
+  }
+
+  int sqrt(Complex a) {
+    return mpc_sqrt(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int exp(Complex a) {
+    return mpc_exp(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int log(Complex a) {
+    return mpc_log(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int log10(Complex a) {
+    return mpc_log10(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int sin(Complex a) {
+    return mpc_sin(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int cos(Complex a) {
+    return mpc_cos(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int tan(Complex a) {
+    return mpc_tan(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int sinh(Complex a) {
+    return mpc_sinh(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int cosh(Complex a) {
+    return mpc_cosh(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int tanh(Complex a) {
+    return mpc_tanh(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int asin(Complex a) {
+    return mpc_asin(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int acos(Complex a) {
+    return mpc_acos(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int atan(Complex a) {
+    return mpc_atan(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int asinh(Complex a) {
+    return mpc_asinh(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int acosh(Complex a) {
+    return mpc_acosh(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int atanh(Complex a) {
+    return mpc_atanh(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  int conj(Complex a) {
+    return mpc_conj(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
+  }
+
+  double getRealAsDouble() {
+    return mpfr_get_d(getRealPointer(), MPFRRound.RNDN);
+  }
+
+  double getImaginaryAsDouble() {
+    return mpfr_get_d(getImaginaryPointer(), MPFRRound.RNDN);
+  }
 }
