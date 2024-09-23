@@ -60,7 +60,7 @@ class Number {
 
   // // Construtor da constante de Euler
   Number.eulers() {
-
+    _num = Complex.eulers();
   }
 
   Number.i() {
@@ -68,7 +68,7 @@ class Number {
   }
 
   Number.pi() {
-
+    _num = Complex.pi();
   }
 
   Number.tau() {

@@ -504,6 +504,25 @@ class Complex {
     mpfr_const_euler(rePtr, MPFRRound.RNDN);
   }
 
+  // Construtor da constante Pi
+  Complex.pi([this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    setInt(0, 0);
+    var rePtr = getRealPointer();
+    mpfr_const_pi(rePtr, MPFRRound.RNDN);
+  }
+
+  // Construtor da constante Tau (2*Pi)
+  Complex.tau([this._precision = 256]) {
+    _complex = calloc<mpc_t>();
+    mpc_init2(_complex, _precision);
+    setInt(0, 0);
+    var rePtr = getRealPointer();
+    mpfr_const_pi(rePtr, MPFRRound.RNDN);
+    mpfr_mul_si(rePtr, rePtr, 2, MPFRRound.RNDN);
+  }
+
   // Destrutor
   void dispose() {
     mpc_clear(_complex);

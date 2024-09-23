@@ -615,6 +615,21 @@ class Real {
     mpfr_const_euler(_number, MPFRRound.RNDN);
   }
 
+  // Construtor da constante Pi
+  Real.pi(this._precision) {
+    _number = calloc<mpfr_t>();
+    mpfr_init2(_number, _precision);
+    mpfr_const_pi(_number, MPFRRound.RNDN);
+  }
+
+  // Construtor da constante Tau (2*Pi)
+  Real.tau(this._precision) {
+    _number = calloc<mpfr_t>();
+    mpfr_init2(_number, _precision);
+    mpfr_const_pi(_number, MPFRRound.RNDN);
+    mpfr_mul_si(_number, _number, 2, MPFRRound.RNDN);
+  }
+
   // Destrutor
   void dispose() {
     mpfr_clear(_number);
