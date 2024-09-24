@@ -213,19 +213,28 @@ class Number {
 
   Number realComponent() {
     var z = Number();
-    z._num = _num.realComponent();
+    z._num.setMPReal(_num.getRealPointer());
     return z;
   }
 
   Number imaginaryComponent() {
+    // Copy imaginary component to real component
     var z = Number();
-    z._num = _num.imaginaryComponent();
+    z._num.setMPReal(_num.getImaginaryPointer());
     return z;
   }
 
   Number integerComponent() {
     var z = Number();
-    z._num = _num.integerComponent();
+    var rePtrZ = z._num.getRealPointer();
+    var imPtrZ = z._num.getImaginaryPointer();
+
+    // set the imaginary part of z to zero
+    mpfr_set_zero(imPtrZ, 1);
+
+    // truncate the real part of z to an integer
+    mpfr_trunc(rePtrZ, _num.getRealPointer());
+
     return z;
   }
 

@@ -591,6 +591,14 @@ class Complex {
     }
   }
 
+  int setMPReal(Pointer<mpfr_t> real, [Pointer<mpfr_t>? imag, int round = MPFRRound.RNDN]) {
+    if (imag == null) {
+      return mpc_set_fr(_complex, real, round);
+    } else {
+      return mpc_set_fr_fr(_complex, real, imag, round);
+    }
+  }
+
   int setDouble(double real, [double imag = 0.0, int round = MPFRRound.RNDN]) {
     return mpc_set_d_d(_complex, real, imag, round);
   }
