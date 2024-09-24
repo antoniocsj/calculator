@@ -47,6 +47,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  ffigen: ^14.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -89,3 +90,19 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+#ffigen:
+#  name: 'mpfr'
+#  description: 'FFI bindings for the MPFR library'
+#  output: 'lib/mpfr_bindings.dart'
+#  headers:
+#    entry-points:
+#      - 'android/app/src/main/cpp/include/mpfr.h'
+
+#ffigen:
+#  name: 'mpc'
+#  description: 'FFI bindings for the MPC library'
+#  output: 'lib/mpc_bindings.dart'
+#  headers:
+#    entry-points:
+#      - 'android/app/src/main/cpp/include/mpc.h'
