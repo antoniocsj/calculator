@@ -669,6 +669,10 @@ class Complex {
     return mpc_fr_div(_complex, a.getPointer(), b.getPointer(), MPCRound.MPC_RNDNN);
   }
 
+  int mpRealDivide(Pointer<mpfr_t> a, Pointer<mpc_t> b) {
+    return mpc_fr_div(_complex, a, b, MPCRound.MPC_RNDNN);
+  }
+
   int negate(Complex a) {
     return mpc_neg(_complex, a.getPointer(), MPCRound.MPC_RNDNN);
   }

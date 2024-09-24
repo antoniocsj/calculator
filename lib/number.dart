@@ -9,7 +9,7 @@ class Number {
   static int precision = 1000;
   static String? error;
 
-  late Complex _num;
+  late Complex num;
 
   // Getter para a precisão
   int get getPrecision => precision;
@@ -21,15 +21,15 @@ class Number {
 
   // Construtor padrão
   Number() {
-    _num = Complex(precision);
+    num = Complex(precision);
   }
 
   Number.fromInt(int real, [int imag = 0]) {
-    _num = Complex.fromInt(real, imag, precision);
+    num = Complex.fromInt(real, imag, precision);
   }
 
   Number.fromUInt(int real, [int imag = 0]) {
-    _num = Complex.fromUInt(real, imag, precision);
+    num = Complex.fromUInt(real, imag, precision);
   }
 
   Number.fromFraction(int numerator, int denominator) {
@@ -37,81 +37,81 @@ class Number {
       numerator = -numerator;
       denominator = -denominator;
     }
-    _num = Complex.fromInt(numerator, precision);
-    _num.divideUInt(_num, denominator);
+    num = Complex.fromInt(numerator, precision);
+    num.divideUInt(num, denominator);
   }
 
   Number.fromReal(Real real, [Real? imag]) {
-    _num = Complex.fromReal(real, imag, precision);
+    num = Complex.fromReal(real, imag, precision);
   }
 
   Number.fromDouble(double real, [double imag = 0]) {
-    _num = Complex.fromDouble(real, imag, precision);
+    num = Complex.fromDouble(real, imag, precision);
   }
 
   Number.fromComplex(Number r, Number i) {
-    _num = Complex.fromComplex(r._num, i._num);
+    num = Complex.fromComplex(r.num, i.num);
   }
 
   Number.polar(Number r, Number theta, [AngleUnit unit = AngleUnit.radians]) {
     var x = theta.cos(unit).multiply(r);
     var y = theta.sin(unit).multiply(r);
-    _num = Complex.fromComplex(x._num, y._num);
+    num = Complex.fromComplex(x.num, y.num);
   }
 
   // // Construtor da constante de Euler
   Number.eulers() {
-    _num = Complex.eulers();
+    num = Complex.eulers();
   }
 
   Number.i() {
-    _num = Complex.fromInt(0, 1, precision);
+    num = Complex.fromInt(0, 1, precision);
   }
 
   Number.pi() {
-    _num = Complex.pi();
+    num = Complex.pi();
   }
 
   Number.tau() {
-    _num = Complex.tau();
+    num = Complex.tau();
   }
 
   Number.random() {
     var rnd = Random().nextDouble();
-    _num = Complex.fromDouble(rnd, rnd, precision);
+    num = Complex.fromDouble(rnd, rnd, precision);
     // pesquisar como fazer isso usando a biblioteca mpfr e mpc.
   }
 
   void dispose() {
-    _num.dispose();
+    num.dispose();
   }
 
   int toInteger() {
-    var rePtr = _num.getRealPointer();
+    var rePtr = num.getRealPointer();
     return mpfr_get_si(rePtr, MPFRRound.RNDN);
   }
 
   int toUnsignedInteger() {
-    var rePtr = _num.getRealPointer();
+    var rePtr = num.getRealPointer();
     return mpfr_get_ui(rePtr, MPFRRound.RNDN);
   }
 
   double toFloat() {
-    var rePtr = _num.getRealPointer();
+    var rePtr = num.getRealPointer();
     return mpfr_get_flt(rePtr, MPFRRound.RNDN);
   }
 
   double toDouble() {
-    var rePtr = _num.getRealPointer();
+    var rePtr = num.getRealPointer();
     return mpfr_get_d(rePtr, MPFRRound.RNDN);
   }
 
   bool isZero() {
-    return _num.isZero();
+    return num.isZero();
   }
 
   bool isNegative() {
-    var rePtr = _num.getRealPointer();
+    var rePtr = num.getRealPointer();
     return mpfr_sgn(rePtr) < 0;
   }
 
@@ -119,7 +119,7 @@ class Number {
     if (isComplex()) {
       return false;
     } else {
-      var rePtr = _num.getRealPointer();
+      var rePtr = num.getRealPointer();
       return mpfr_integer_p(rePtr) != 0;
     }
   }
@@ -134,7 +134,7 @@ class Number {
 
   // return true if the number has an imaginary part
   bool isComplex() {
-    var imPtr = _num.getImaginaryPointer();
+    var imPtr = num.getImaginaryPointer();
     return mpfr_zero_p(imPtr) == 0;
   }
 
@@ -148,34 +148,34 @@ class Number {
   }
 
   bool equals(Number y) {
-    return _num.isEqual(y._num);
+    return num.isEqual(y.num);
   }
 
   int compare(Number y) {
-    var rePtrThis = _num.getRealPointer();
-    var rePtrY = y._num.getRealPointer();
+    var rePtrThis = num.getRealPointer();
+    var rePtrY = y.num.getRealPointer();
     return mpfr_cmp(rePtrThis, rePtrY);
   }
 
   Number sgn() {
-    var rePtr = _num.getRealPointer();
+    var rePtr = num.getRealPointer();
     var z = Number.fromInt(mpfr_sgn(rePtr));
     return z;
   }
 
   Number invertSign() {
     var z = Number();
-    z._num.negate(_num);
+    z.num.negate(num);
     return z;
   }
 
   Number abs() {
     var z = Number();
-    var imPtrZ = z._num.getImaginaryPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
     mpfr_set_zero(imPtrZ, 1);
 
-    var rePtrZ = z._num.getRealPointer();
-    mpfr_abs(rePtrZ, _num.getRealPointer(), MPFRRound.RNDN);
+    var rePtrZ = z.num.getRealPointer();
+    mpfr_abs(rePtrZ, num.getRealPointer(), MPFRRound.RNDN);
     return z;
   }
 
@@ -186,13 +186,13 @@ class Number {
     }
 
     var z = Number();
-    var rePtrZ = z._num.getRealPointer();
-    var imPtrZ = z._num.getImaginaryPointer();
+    var rePtrZ = z.num.getRealPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
 
     mpfr_set_zero(imPtrZ, 1);
-    mpc_arg(rePtrZ, _num.getPointer(), MPFRRound.RNDN);
+    mpc_arg(rePtrZ, num.getPointer(), MPFRRound.RNDN);
 
-    mpcFromRadians(z._num, z._num, unit);
+    mpcFromRadians(z.num, z.num, unit);
     // MPC returns -π for the argument of negative real numbers if
     // their imaginary part is -0 (which it is in the numbers
     // created by test-equation), we want +π for all real negative
@@ -207,301 +207,280 @@ class Number {
 
   Number conjugate() {
     var z = Number();
-    z._num.conj(_num);
+    z.num.conj(num);
     return z;
   }
 
   Number realComponent() {
     var z = Number();
-    z._num.setMPReal(_num.getRealPointer());
+    z.num.setMPReal(num.getRealPointer());
     return z;
   }
 
   Number imaginaryComponent() {
     // Copy imaginary component to real component
     var z = Number();
-    z._num.setMPReal(_num.getImaginaryPointer());
+    z.num.setMPReal(num.getImaginaryPointer());
     return z;
   }
 
   Number integerComponent() {
     var z = Number();
-    var rePtrZ = z._num.getRealPointer();
-    var imPtrZ = z._num.getImaginaryPointer();
+    var rePtrZ = z.num.getRealPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
 
     // set the imaginary part of z to zero
     mpfr_set_zero(imPtrZ, 1);
 
     // truncate the real part of z to an integer
-    mpfr_trunc(rePtrZ, _num.getRealPointer());
+    mpfr_trunc(rePtrZ, num.getRealPointer());
 
     return z;
   }
 
+  // Returns z = x mod 1
   Number fractionalComponent() {
     var z = Number();
-    z._num = _num.fractionalComponent();
+    var rePtrZ = z.num.getRealPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
+
+    // set the imaginary part of z to zero
+    mpfr_set_zero(imPtrZ, 1);
+
+    // set the real part of z to the fractional part of the real part of this
+    mpfr_frac(rePtrZ, num.getRealPointer(), MPFRRound.RNDN);
+
     return z;
   }
 
+  /* Returns z = {x} */
   Number fractionalPart() {
-    return subtract(floor());
+    // return subtract(floor());
   }
 
+  // Returns z = ⌊x⌋
   Number floor() {
     var z = Number();
-    z._num = _num.floor();
+    var rePtrZ = z.num.getRealPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
+
+    // set the imaginary part of z to zero
+    mpfr_set_zero(imPtrZ, 1);
+
+    // set the real part of z to the floor of the real part of this
+    mpfr_floor(rePtrZ, num.getRealPointer());
+
     return z;
   }
 
+  // Returns z = ⌈x⌉
   Number ceiling() {
     var z = Number();
-    z._num = _num.ceiling();
+    var rePtrZ = z.num.getRealPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
+
+    // set the imaginary part of z to zero
+    mpfr_set_zero(imPtrZ, 1);
+
+    // set the real part of z to the ceiling of the real part of this
+    mpfr_ceil(rePtrZ, num.getRealPointer());
+
     return z;
   }
 
+  // Returns z = [x]
   Number round() {
     var z = Number();
-    z._num = _num.round();
+    var rePtrZ = z.num.getRealPointer();
+    var imPtrZ = z.num.getImaginaryPointer();
+
+    // set the imaginary part of z to zero
+    mpfr_set_zero(imPtrZ, 1);
+
+    // set the real part of z to the round of the real part of this
+    mpfr_round(rePtrZ, num.getRealPointer());
+
     return z;
   }
 
+  // Returns z = 1 / x
   Number reciprocal() {
     var z = Number();
-    z._num = _num.reciprocal();
+    var rePtrZ = z.num.getRealPointer();
+
+    // set z to (1, 0)
+    z.num.setInt(1);
+
+    // divide z by this
+    z.num.mpRealDivide(rePtrZ, num.getPointer());
+
     return z;
   }
 
+  // Sets z = e^x
   Number epowy() {
     var z = Number();
-    z._num = _num.epowy();
+    z.num.exp(num);
     return z;
   }
 
+  // Sets z = x^y
   Number xpowy(Number y) {
+    // 0^-n invalid */
+    if (isZero() && y.isNegative()) {
+      error = '0^(-n) is undefined';
+      return Number.fromInt(0);
+    }
+
+    // 0^0 is indeterminate
+    if (isZero() && y.isZero()) {
+      error = '0^0 is indeterminate';
+      return Number.fromInt(0);
+    }
+
+    if (!isComplex() && !y.isComplex() && !y.isInteger()) {
+      var reciprocal = y.reciprocal();
+      if (reciprocal.isInteger()) {
+        return root(reciprocal.toInteger());
+      }
+    }
+
     var z = Number();
-    z._num = _num.xpowy(y._num);
+    z.num.power(num, y.num);
     return z;
   }
 
+  // Sets z = x^y
   Number xpowyInteger(int n) {
+    // 0^-n invalid
+    if (isZero() && n < 0) {
+      error = '0^(-n) is undefined';
+      return Number.fromInt(0);
+    }
+
+    // 0^0 is indeterminate
+    if (isZero() && n == 0) {
+      error = '0^0 is indeterminate';
+      return Number.fromInt(0);
+    }
+
     var z = Number();
-    z._num = _num.xpowyInteger(n);
+    z.num.powerInt(num, n);
     return z;
   }
 
   Number root(int n) {
-    var z = Number();
-    z._num = _num.root(n);
-    return z;
   }
 
   Number sqrt() {
-    return root(2);
   }
 
   Number ln() {
-    var z = Number();
-    z._num = _num.ln();
-    return z;
   }
 
   Number logarithm(int n) {
-    var z = Number();
-    z._num = _num.logarithm(n);
-    return z;
   }
 
   Number factorial() {
-    var z = Number();
-    z._num = _num.factorial();
-    return z;
   }
 
   Number add(Number y) {
-    var z = Number();
-    z._num = _num.add(y._num);
-    return z;
   }
 
   Number subtract(Number y) {
-    var z = Number();
-    z._num = _num.subtract(y._num);
-    return z;
   }
 
   Number multiply(Number y) {
-    var z = Number();
-    z._num = _num.multiply(y._num);
-    return z;
   }
 
   Number multiplyInteger(int y) {
-    var z = Number();
-    z._num = _num.multiplyInteger(y);
-    return z;
   }
 
   Number divide(Number y) {
-    var z = Number();
-    z._num = _num.divide(y._num);
-    return z;
   }
 
   Number divideInteger(int y) {
-    return divide(Number.integer(y));
   }
 
   Number modulusDivide(Number y) {
-    var z = Number();
-    z._num = _num.modulusDivide(y._num);
-    return z;
   }
 
   Number modularExponentiation(Number exp, Number mod) {
-    var z = Number();
-    z._num = _num.modularExponentiation(exp._num, mod._num);
-    return z;
   }
 
   Number sin([AngleUnit unit = AngleUnit.radians]) {
-    var z = Number();
-    z._num = _num.sin(unit);
-    return z;
   }
 
   Number cos([AngleUnit unit = AngleUnit.radians]) {
-    var z = Number();
-    z._num = _num.cos(unit);
-    return z;
   }
 
   Number tan([AngleUnit unit = AngleUnit.radians]) {
-    var z = Number();
-    z._num = _num.tan(unit);
-    return z;
   }
 
   Number asin([AngleUnit unit = AngleUnit.radians]) {
-    var z = Number();
-    z._num = _num.asin(unit);
-    return z;
   }
 
   Number acos([AngleUnit unit = AngleUnit.radians]) {
-    var z = Number();
-    z._num = _num.acos(unit);
-    return z;
   }
 
   Number atan([AngleUnit unit = AngleUnit.radians]) {
-    var z = Number();
-    z._num = _num.atan(unit);
-    return z;
   }
 
   Number sinh() {
-    var z = Number();
-    z._num = _num.sinh();
-    return z;
   }
 
   Number cosh() {
-    var z = Number();
-    z._num = _num.cosh();
-    return z;
   }
 
   Number tanh() {
-    var z = Number();
-    z._num = _num.tanh();
-    return z;
   }
 
   Number asinh() {
-    var z = Number();
-    z._num = _num.asinh();
-    return z;
   }
 
   Number acosh() {
-    var z = Number();
-    z._num = _num.acosh();
-    return z;
   }
 
   Number atanh() {
-    var z = Number();
-    z._num = _num.atanh();
-    return z;
   }
 
   Number and(Number y) {
-    var z = Number();
-    z._num = _num.and(y._num);
-    return z;
   }
 
   Number or(Number y) {
-    var z = Number();
-    z._num = _num.or(y._num);
-    return z;
   }
 
   Number xor(Number y) {
-    var z = Number();
-    z._num = _num.xor(y._num);
-    return z;
   }
 
   Number not(int wordlen) {
-    var z = Number();
-    z._num = _num.not(wordlen);
-    return z;
   }
 
   Number mask(Number x, int wordlen) {
-    var z = Number();
-    z._num = _num.mask(x._num, wordlen);
-    return z;
   }
 
   Number shift(int count) {
-    var z = Number();
-    z._num = _num.shift(count);
-    return z;
   }
 
   Number onesComplement(int wordlen) {
-    var z = Number();
-    z._num = _num.onesComplement(wordlen);
-    return z;
   }
 
   Number twosComplement(int wordlen) {
-    var z = Number();
-    z._num = _num.twosComplement(wordlen);
-    return z;
   }
 
   bool isSprp(Number p, int b) {
-    return _num.isSprp(p._num, b);
   }
 
   bool isPrime(Number x) {
-    return _num.isPrime(x._num);
   }
 
   List<Number> factorize() {
-    return _num.factorize().map((e) => Number.fromComplex(e)).toList();
   }
 
   List<Number> factorizeUint64(int n) {
-    return _num.factorizeUint64(n).map((e) => Number.fromComplex(e)).toList();
   }
 
   Number copy() {
-    return Number.fromComplex(_num.copy());
   }
 
   static void mpcFromRadians(Complex res, Complex op, AngleUnit unit) {
@@ -566,7 +545,7 @@ class Number {
 
   Number toRadians(AngleUnit unit) {
     var z = Number();
-    mpcToRadians(z._num, _num, unit);
+    mpcToRadians(z.num, num, unit);
     return z;
   }
 
@@ -575,30 +554,23 @@ class Number {
   }
 
   int hexToInt(String digit) {
-    return _num.hexToInt(digit);
   }
 
   String toHexString() {
-    return _num.toHexString();
   }
 
   static int parseLiteralPrefix(String str, int prefixLen) {
-    return Number.parseLiteralPrefix(str, prefixLen);
   }
 
   Number? mpSetFromString(String str, [int defaultBase = 10, bool mayHavePrefix = true]) {
-    return Number.fromComplex(_num.mpSetFromString(str, defaultBase, mayHavePrefix));
   }
 
   int charVal(String c, int numberBase) {
-    return _num.charVal(c, numberBase);
   }
 
   Number? setFromSexagesimal(String str) {
-    return Number.fromComplex(_num.setFromSexagesimal(str));
   }
 
   bool mpIsOverflow(Number x, int wordlen) {
-    return _num.mpIsOverflow(x._num, wordlen);
   }
 }
