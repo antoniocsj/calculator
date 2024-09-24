@@ -451,8 +451,8 @@ class Complex {
   int get precision => _precision;
 
   // Setter para alterar o número complexo
-  set complex(Pointer<mpc_t> complex) {
-    mpc_set(_complex, complex, MPCRound.MPC_RNDNN);
+  void setComplex(Complex complex) {
+    mpc_set(_complex, complex.getPointer(), MPCRound.MPC_RNDNN);
   }
 
   Complex([this._precision = 256]) {

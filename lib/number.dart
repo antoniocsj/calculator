@@ -1,8 +1,9 @@
+import 'dart:math';
 import 'package:calculator/enums.dart';
 import 'package:calculator/mpfr.dart';
 import 'package:calculator/mpc.dart';
 
-
+typedef BitwiseFunc = int Function(int v1, int v2);
 
 class Number {
   static int precision = 1000;
@@ -76,7 +77,9 @@ class Number {
   }
 
   Number.random() {
-    _num = Complex.random();
+    var rnd = Random().nextDouble();
+    _num = Complex.fromDouble(rnd, rnd, precision);
+    // pesquisar como fazer isso usando a biblioteca mpfr e mpc.
   }
 
   void dispose() {
@@ -84,19 +87,23 @@ class Number {
   }
 
   int toInteger() {
-    return _num.toInteger();
+    var rePtr = _num.getRealPointer();
+    return mpfr_get_si(rePtr, MPFRRound.RNDN);
   }
 
   int toUnsignedInteger() {
-    return _num.toUnsignedInteger();
+    var rePtr = _num.getRealPointer();
+    return mpfr_get_ui(rePtr, MPFRRound.RNDN);
   }
 
   double toFloat() {
-    return _num.toFloat();
+    var rePtr = _num.getRealPointer();
+    return mpfr_get_flt(rePtr, MPFRRound.RNDN);
   }
 
   double toDouble() {
-    return _num.toDouble();
+    var rePtr = _num.getRealPointer();
+    return mpfr_get_d(rePtr, MPFRRound.RNDN);
   }
 
   bool isZero() {
@@ -104,66 +111,103 @@ class Number {
   }
 
   bool isNegative() {
-    return _num.isNegative();
+    var rePtr = _num.getRealPointer();
+    return mpfr_sgn(rePtr) < 0;
   }
 
   bool isInteger() {
-    return _num.isInteger();
+    if (isComplex()) {
+      return false;
+    } else {
+      var rePtr = _num.getRealPointer();
+      return mpfr_integer_p(rePtr) != 0;
+    }
   }
 
   bool isPositiveInteger() {
-    return _num.isPositiveInteger();
+    return isInteger() && !isNegative();
   }
 
   bool isNatural() {
-    return _num.isNatural();
+    return isPositiveInteger();
   }
 
+  // return true if the number has an imaginary part
   bool isComplex() {
-    return _num.isComplex();
+    var imPtr = _num.getImaginaryPointer();
+    return mpfr_zero_p(imPtr) == 0;
   }
 
+  // Return error if overflow or underflow
   static void checkFlags() {
-    if (MPFR.isUnderflow()) {
-      // Handle underflow
-    } else if (MPFR.isOverflow()) {
-      // Handle overflow
+    if (mpfr_overflow_p() != 0) {
+      error = 'Overflow';
+    } else if (mpfr_underflow_p() != 0) {
+      error = 'Underflow';
     }
   }
 
   bool equals(Number y) {
-    return _num.equals(y._num);
+    return _num.isEqual(y._num);
   }
 
   int compare(Number y) {
-    return _num.compare(y._num);
+    var rePtrThis = _num.getRealPointer();
+    var rePtrY = y._num.getRealPointer();
+    return mpfr_cmp(rePtrThis, rePtrY);
   }
 
   Number sgn() {
-    return Number.integer(_num.sgn());
+    var rePtr = _num.getRealPointer();
+    var z = Number.fromInt(mpfr_sgn(rePtr));
+    return z;
   }
 
   Number invertSign() {
     var z = Number();
-    z._num = _num.invertSign();
+    z._num.negate(_num);
     return z;
   }
 
   Number abs() {
     var z = Number();
-    z._num = _num.abs();
+    var imPtrZ = z._num.getImaginaryPointer();
+    mpfr_set_zero(imPtrZ, 1);
+
+    var rePtrZ = z._num.getRealPointer();
+    mpfr_abs(rePtrZ, _num.getRealPointer(), MPFRRound.RNDN);
     return z;
   }
 
   Number arg([AngleUnit unit = AngleUnit.radians]) {
+    if (isZero()) {
+      error = 'Argument of zero is undefined';
+      return Number.fromInt(0);
+    }
+
     var z = Number();
-    z._num = _num.arg(unit);
+    var rePtrZ = z._num.getRealPointer();
+    var imPtrZ = z._num.getImaginaryPointer();
+
+    mpfr_set_zero(imPtrZ, 1);
+    mpc_arg(rePtrZ, _num.getPointer(), MPFRRound.RNDN);
+
+    mpcFromRadians(z._num, z._num, unit);
+    // MPC returns -π for the argument of negative real numbers if
+    // their imaginary part is -0 (which it is in the numbers
+    // created by test-equation), we want +π for all real negative
+    // numbers
+
+    if (!isComplex() && isNegative()) {
+      mpfr_abs(rePtrZ, rePtrZ, MPFRRound.RNDN);
+    }
+
     return z;
   }
 
   Number conjugate() {
     var z = Number();
-    z._num = _num.conjugate();
+    z._num.conj(_num);
     return z;
   }
 
@@ -452,19 +496,73 @@ class Number {
   }
 
   static void mpcFromRadians(Complex res, Complex op, AngleUnit unit) {
-    Complex.mpcFromRadians(res, op, unit);
+    int i;
+
+    switch (unit) {
+      case AngleUnit.radians:
+        if (res != op) {
+          res.setComplex(op);
+        }
+        return;
+
+      case AngleUnit.degrees:
+        i = 180;
+        break;
+
+      case AngleUnit.gradians:
+        i = 200;
+        break;
+
+      default:
+        return;
+    }
+
+    var scale = Real(precision);
+    scale.setPi();
+    scale.intDiv(i, scale);
+    res.multiplyReal(op, scale);
+
+    scale.dispose();
   }
 
   static void mpcToRadians(Complex res, Complex op, AngleUnit unit) {
-    Complex.mpcToRadians(res, op, unit);
+    int i;
+
+    switch (unit) {
+      case AngleUnit.radians:
+        if (res != op) {
+          res.setComplex(op);
+        }
+        return;
+
+      case AngleUnit.degrees:
+        i = 180;
+        break;
+
+      case AngleUnit.gradians:
+        i = 200;
+        break;
+
+      default:
+        return;
+    }
+
+    var scale = Real(precision);
+    scale.setPi();
+    scale.divInt(scale, i);
+    res.multiplyReal(op, scale);
+
+    scale.dispose();
   }
 
   Number toRadians(AngleUnit unit) {
-    return Number.fromComplex(_num.toRadians(unit));
+    var z = Number();
+    mpcToRadians(z._num, _num, unit);
+    return z;
   }
 
   Number bitwise(Number y, BitwiseFunc bitwiseOperator, int wordlen) {
-    return Number.fromComplex(_num.bitwise(y._num, bitwiseOperator, wordlen));
+
   }
 
   int hexToInt(String digit) {

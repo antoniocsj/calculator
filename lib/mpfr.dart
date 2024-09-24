@@ -667,8 +667,8 @@ class Real {
   }
 
   // Atribui o valor zero ao número real
-  void setZero([int round = MPFRRound.RNDN]) {
-    mpfr_set_zero(_number, round);
+  void setZero([int sign = 1]) {
+    mpfr_set_zero(_number, sign);
   }
 
   // Atribui o valor pi ao número real
