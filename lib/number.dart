@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:calculator/enums.dart';
 import 'package:calculator/mpfr.dart';
-import 'package:calculator/mpc.dart';
+import '../lib_0/mpc.dart';
 
 typedef BitwiseFunc = int Function(int v1, int v2);
 

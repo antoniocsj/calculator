@@ -92,7 +92,7 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 #ffigen:
-#  name: 'mpfr'
+#  name: 'MPFRNativeLib'
 #  description: 'FFI bindings for the MPFR library'
 #  output: 'lib/mpfr_bindings.dart'
 #  headers:
@@ -100,7 +100,7 @@ flutter:
 #      - 'android/app/src/main/cpp/include/mpfr.h'
 
 #ffigen:
-#  name: 'mpc'
+#  name: 'MPCNativeLib'
 #  description: 'FFI bindings for the MPC library'
 #  output: 'lib/mpc_bindings.dart'
 #  headers:
