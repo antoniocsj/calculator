@@ -7,13 +7,16 @@ final DynamicLibrary _mpfr = DynamicLibrary.open('libmpfr.so');
 
 var mpfr = MPFRNativeLib(_mpfr);
 
+void _customFinalizer(mpfr_ptr ptr) {
+  mpfr.mpfr_clear(ptr);
+  calloc.free(ptr);
+}
+
 // classe Real: Representa um número real com precisão arbitrária
 class Real implements Finalizable {
-  // Native Finalizer
-  // O native finalizer é uma função que é chamada quando o objeto é coletado pelo coletor de lixo.
-  // O native finalizer roda a função mpfr_clear (da biblioteca MPFR) para liberar a memória alocada para o número real.
-  // O native finalizer é uma função estática que é chamada pelo coletor de lixo.
-  static final _finalizer = NativeFinalizer(mpfr.mpfr_clearPtr.cast());
+  // Finalizador para a classe Real
+  // O finalizador é chamado quando o objeto é coletado pelo coletor de lixo
+  static final _finalizer = Finalizer(_customFinalizer);
 
   // Ponteiro para a estrutura mpfr_t
   late mpfr_ptr _number;
@@ -66,7 +69,8 @@ class Real implements Finalizable {
   Real(this._precision) {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
-    _finalizer.attach(this, _number.cast(), detach: this);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor a partir de um double
@@ -74,6 +78,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_set_d(_number, value, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor a partir de um inteiro com sinal
@@ -81,6 +87,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_set_si(_number, value, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor a partir de um inteiro sem sinal
@@ -88,6 +96,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_set_ui(_number, value, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor a partir de uma string
@@ -95,6 +105,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_set_str(_number, value.toNativeUtf8().cast<Utf8>(), base, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor a partir de outro número real
@@ -102,6 +114,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, value._precision);
     mpfr.mpfr_set(_number, value._number, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor da constante de Euler
@@ -109,6 +123,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_const_euler(_number, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor da constante Pi
@@ -116,6 +132,8 @@ class Real implements Finalizable {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_const_pi(_number, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Construtor da constante Tau (2*Pi)
@@ -124,6 +142,8 @@ class Real implements Finalizable {
     mpfr.mpfr_init2(_number, _precision);
     mpfr.mpfr_const_pi(_number, mpfr_rnd_t.MPFR_RNDN);
     mpfr.mpfr_mul_si(_number, _number, 2, mpfr_rnd_t.MPFR_RNDN);
+    // _finalizer.attach(this, _number.cast(), detach: this);
+    _finalizer.attach(this, _number, detach: this);
   }
 
   // Libera a memória alocada para o número real
@@ -135,7 +155,6 @@ class Real implements Finalizable {
     _finalizer.detach(this);
     mpfr.mpfr_clear(_number);
     calloc.free(_number);
-    // print('Real disposed');
   }
 
   // Atribui um valor double ao número real
