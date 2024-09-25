@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:calculator/enums.dart';
 import 'package:calculator/mpfr.dart';
-import '../lib_0/mpc.dart';
+import 'package:calculator/mpfr_bindings.dart';
+import 'package:calculator/mpc.dart';
+// import 'package:calculator/mpc_bindings.dart';
 
 typedef BitwiseFunc = int Function(int v1, int v2);
 
@@ -88,22 +90,22 @@ class Number {
 
   int toInteger() {
     var rePtr = num.getRealPointer();
-    return mpfr_get_si(rePtr, MPFRRound.RNDN);
+    return mpfr.mpfr_get_si(rePtr, mpfr_rnd_t.MPFR_RNDN);
   }
 
   int toUnsignedInteger() {
     var rePtr = num.getRealPointer();
-    return mpfr_get_ui(rePtr, MPFRRound.RNDN);
+    return mpfr.mpfr_get_ui(rePtr, mpfr_rnd_t.MPFR_RNDN);
   }
 
   double toFloat() {
     var rePtr = num.getRealPointer();
-    return mpfr_get_flt(rePtr, MPFRRound.RNDN);
+    return mpfr.mpfr_get_flt(rePtr, mpfr_rnd_t.MPFR_RNDN);
   }
 
   double toDouble() {
     var rePtr = num.getRealPointer();
-    return mpfr_get_d(rePtr, MPFRRound.RNDN);
+    return mpfr.mpfr_get_d(rePtr, mpfr_rnd_t.MPFR_RNDN);
   }
 
   bool isZero() {
@@ -112,7 +114,7 @@ class Number {
 
   bool isNegative() {
     var rePtr = num.getRealPointer();
-    return mpfr_sgn(rePtr) < 0;
+    return mpfr.mpfr_sgn(rePtr) < 0;
   }
 
   bool isInteger() {
@@ -120,7 +122,7 @@ class Number {
       return false;
     } else {
       var rePtr = num.getRealPointer();
-      return mpfr_integer_p(rePtr) != 0;
+      return mpfr.mpfr_integer_p(rePtr) != 0;
     }
   }
 
@@ -135,14 +137,14 @@ class Number {
   // return true if the number has an imaginary part
   bool isComplex() {
     var imPtr = num.getImaginaryPointer();
-    return mpfr_zero_p(imPtr) == 0;
+    return mpfr.mpfr_zero_p(imPtr) == 0;
   }
 
   // Return error if overflow or underflow
   static void checkFlags() {
-    if (mpfr_overflow_p() != 0) {
+    if (mpfr.mpfr_overflow_p() != 0) {
       error = 'Overflow';
-    } else if (mpfr_underflow_p() != 0) {
+    } else if (mpfr.mpfr_underflow_p() != 0) {
       error = 'Underflow';
     }
   }
@@ -154,12 +156,12 @@ class Number {
   int compare(Number y) {
     var rePtrThis = num.getRealPointer();
     var rePtrY = y.num.getRealPointer();
-    return mpfr_cmp(rePtrThis, rePtrY);
+    return mpfr.mpfr_cmp(rePtrThis, rePtrY);
   }
 
   Number sgn() {
     var rePtr = num.getRealPointer();
-    var z = Number.fromInt(mpfr_sgn(rePtr));
+    var z = Number.fromInt(mpfr.mpfr_sgn(rePtr));
     return z;
   }
 
@@ -172,10 +174,10 @@ class Number {
   Number abs() {
     var z = Number();
     var imPtrZ = z.num.getImaginaryPointer();
-    mpfr_set_zero(imPtrZ, 1);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
 
     var rePtrZ = z.num.getRealPointer();
-    mpfr_abs(rePtrZ, num.getRealPointer(), MPFRRound.RNDN);
+    mpfr.mpfr_abs(rePtrZ, num.getRealPointer(), mpfr_rnd_t.MPFR_RNDN);
     return z;
   }
 
@@ -189,8 +191,8 @@ class Number {
     var rePtrZ = z.num.getRealPointer();
     var imPtrZ = z.num.getImaginaryPointer();
 
-    mpfr_set_zero(imPtrZ, 1);
-    mpc_arg(rePtrZ, num.getPointer(), MPFRRound.RNDN);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
+    mpc.mpc_arg(rePtrZ, num.getPointer(), mpfr_rnd_t.MPFR_RNDN);
 
     mpcFromRadians(z.num, z.num, unit);
     // MPC returns -π for the argument of negative real numbers if
@@ -199,7 +201,7 @@ class Number {
     // numbers
 
     if (!isComplex() && isNegative()) {
-      mpfr_abs(rePtrZ, rePtrZ, MPFRRound.RNDN);
+      mpfr.mpfr_abs(rePtrZ, rePtrZ, mpfr_rnd_t.MPFR_RNDN);
     }
 
     return z;
@@ -230,10 +232,10 @@ class Number {
     var imPtrZ = z.num.getImaginaryPointer();
 
     // set the imaginary part of z to zero
-    mpfr_set_zero(imPtrZ, 1);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
 
     // truncate the real part of z to an integer
-    mpfr_trunc(rePtrZ, num.getRealPointer());
+    mpfr.mpfr_trunc(rePtrZ, num.getRealPointer());
 
     return z;
   }
@@ -245,10 +247,10 @@ class Number {
     var imPtrZ = z.num.getImaginaryPointer();
 
     // set the imaginary part of z to zero
-    mpfr_set_zero(imPtrZ, 1);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
 
     // set the real part of z to the fractional part of the real part of this
-    mpfr_frac(rePtrZ, num.getRealPointer(), MPFRRound.RNDN);
+    mpfr.mpfr_frac(rePtrZ, num.getRealPointer(), mpfr_rnd_t.MPFR_RNDN);
 
     return z;
   }
@@ -265,10 +267,10 @@ class Number {
     var imPtrZ = z.num.getImaginaryPointer();
 
     // set the imaginary part of z to zero
-    mpfr_set_zero(imPtrZ, 1);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
 
     // set the real part of z to the floor of the real part of this
-    mpfr_floor(rePtrZ, num.getRealPointer());
+    mpfr.mpfr_floor(rePtrZ, num.getRealPointer());
 
     return z;
   }
@@ -280,10 +282,10 @@ class Number {
     var imPtrZ = z.num.getImaginaryPointer();
 
     // set the imaginary part of z to zero
-    mpfr_set_zero(imPtrZ, 1);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
 
     // set the real part of z to the ceiling of the real part of this
-    mpfr_ceil(rePtrZ, num.getRealPointer());
+    mpfr.mpfr_ceil(rePtrZ, num.getRealPointer());
 
     return z;
   }
@@ -295,10 +297,10 @@ class Number {
     var imPtrZ = z.num.getImaginaryPointer();
 
     // set the imaginary part of z to zero
-    mpfr_set_zero(imPtrZ, 1);
+    mpfr.mpfr_set_zero(imPtrZ, 1);
 
     // set the real part of z to the round of the real part of this
-    mpfr_round(rePtrZ, num.getRealPointer());
+    mpfr.mpfr_round(rePtrZ, num.getRealPointer());
 
     return z;
   }
