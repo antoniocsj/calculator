@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:calculator/mpfr.dart';
 import 'package:calculator/mpc.dart';
-
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -58,10 +58,19 @@ class _MyHomePageState extends State<MyHomePage> {
     x.dispose();
   }
 
-  void test_2() {
-    Real x = Real.fromDouble(3.6, 64);
-    print('x: ${x.getDouble()}');
-    x.dispose();
+  void test_2() async {
+    while (true) {
+      // Real x = Real.fromDouble(3.6, 1000);
+      Real x = Real.fromString('3.6', 10, 100000);
+      // print('x: ${x.getDouble()}');
+      // print('x: ${x.getString1()}');
+      await Future.delayed(const Duration(milliseconds: 1));
+      // x.dispose();
+    }
+
+    // Real x = Real.fromDouble(3.6, 64);
+    // print('x: ${x.getDouble()}');
+    // // x.dispose();
   }
 
   @override
@@ -81,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  test_1();
+                  test_2();
                 });
               },
               child: const Text('Calcular'),

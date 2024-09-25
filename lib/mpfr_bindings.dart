@@ -6789,6 +6789,10 @@ class MPFRNativeLib {
       _lookup<ffi.NativeFunction<ffi.Void Function(mpfr_ptr)>>('mpfr_clear');
   late final _mpfr_clear = _mpfr_clearPtr.asFunction<void Function(mpfr_ptr)>();
 
+  // getter for _mpfr_clearPtr
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(mpfr_ptr)>> get mpfr_clearPtr =>
+      _mpfr_clearPtr;
+
   void mpfr_inits2(
     int arg0,
     mpfr_ptr arg1,

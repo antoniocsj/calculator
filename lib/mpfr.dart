@@ -8,9 +8,18 @@ final DynamicLibrary _mpfr = DynamicLibrary.open('libmpfr.so');
 var mpfr = MPFRNativeLib(_mpfr);
 
 // classe Real: Representa um número real com precisão arbitrária
-class Real {
+class Real implements Finalizable {
+  // Native Finalizer
+  // O native finalizer é uma função que é chamada quando o objeto é coletado pelo coletor de lixo.
+  // O native finalizer roda a função mpfr_clear (da biblioteca MPFR) para liberar a memória alocada para o número real.
+  // O native finalizer é uma função estática que é chamada pelo coletor de lixo.
+  static final _finalizer = NativeFinalizer(mpfr.mpfr_clearPtr.cast());
+
   // Ponteiro para a estrutura mpfr_t
   late mpfr_ptr _number;
+
+  // variável usada para prevenir o uso do número real após a chamada de dispose
+  bool _disposed = false;
 
   // Retorna um ponteiro para a estrutura mpfr_t
   mpfr_ptr getPointer(){
@@ -57,6 +66,7 @@ class Real {
   Real(this._precision) {
     _number = calloc<mpfr_struct>();
     mpfr.mpfr_init2(_number, _precision);
+    _finalizer.attach(this, _number.cast(), detach: this);
   }
 
   // Construtor a partir de um double
@@ -116,10 +126,16 @@ class Real {
     mpfr.mpfr_mul_si(_number, _number, 2, mpfr_rnd_t.MPFR_RNDN);
   }
 
-  // Destrutor
+  // Libera a memória alocada para o número real
   void dispose() {
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
+    _finalizer.detach(this);
     mpfr.mpfr_clear(_number);
     calloc.free(_number);
+    // print('Real disposed');
   }
 
   // Atribui um valor double ao número real
