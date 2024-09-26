@@ -605,6 +605,11 @@ class Real implements Finalizable {
     mpfr.mpfr_gamma(_number, value._number, round);
   }
 
+  // Calcula o valor do fatorial de um número real. Aceita mpfr_ptr como argumento.
+  void gammaPtr(mpfr_ptr value, [mpfr_rnd_t round = mpfr_rnd_t.MPFR_RNDN]) {
+    mpfr.mpfr_gamma(_number, value, round);
+  }
+
   // Calcula a raiz de um número real
   void root(Real value, int n, [mpfr_rnd_t round = mpfr_rnd_t.MPFR_RNDN]) {
     mpfr.mpfr_root(_number, value._number, n, round);

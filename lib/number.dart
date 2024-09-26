@@ -319,14 +319,14 @@ class Number {
     return z;
   }
 
-  // Sets z = e^x
+  // Returns z = e^x
   Number epowy() {
     var z = Number();
     z.num.exp(num);
     return z;
   }
 
-  // Sets z = x^y
+  // Returns z = x^y
   Number xpowy(Number y) {
     // 0^-n invalid */
     if (isZero() && y.isNegative()) {
@@ -352,9 +352,9 @@ class Number {
     return z;
   }
 
-  // Sets z = x^y
+  // Returns z = x^y
   Number xpowyInteger(int n) {
-    // 0^-n invalid
+    // 0^-n is invalid
     if (isZero() && n < 0) {
       error = '0^(-n) is undefined';
       return Number.fromInt(0);
@@ -371,7 +371,7 @@ class Number {
     return z;
   }
 
-  // Sets z = n√x
+  // Returns z = n√x
   Number root(int n) {
     int p;
 
@@ -412,12 +412,12 @@ class Number {
     return z;
   }
 
-  // Sets z = √x
+  // Returns z = √x
   Number sqrt() {
     return root(2);
   }
 
-  // Sets z = ln x
+  // Returns z = ln x
   Number ln() {
     // ln(0) is undefined
     if (isZero()) {
@@ -440,7 +440,7 @@ class Number {
     return z;
   }
 
-  /* Sets z = log_n x */
+  /* Returns z = log_n x */
   Number logarithm(int n) {
     // log_n(0) is undefined
     if (isZero()) {
@@ -453,28 +453,103 @@ class Number {
     return ln().divide(z.ln());
   }
 
+  /* Returns z = x! */
   Number factorial() {
+    // 0! = 1
+    if (isZero()) {
+      return Number.fromInt(1);
+    }
+
+    if (!isNatural()) {
+
+      // Factorial Not defined for Complex or for negative numbers
+      if (isNegative() || isComplex()) {
+        error = 'Factorial not defined for negative numbers or complex numbers';
+        return Number.fromInt(0);
+      }
+
+      // Factorial(x) = Γ(x + 1)
+      var tmp = add(Number.fromInt(1));
+      var tmp2 = Real(precision);
+      tmp2.gammaPtr(tmp.num.getRealPointer());
+
+      return Number.fromReal(tmp2);
+    }
+
+    // Convert to integer - if couldn't be converted then the factorial would be too big anyway
+    var value = toInteger();
+    var z = Number.fromInt(value);
+
+    // Factorial(x) = x! = x * (x - 1) * (x - 2) * ... * 1
+    for (var i = 2; i < value; i++) {
+      z = z.multiplyInteger(i);
+    }
+
+    return z;
   }
 
+  // Returns z = x + y
   Number add(Number y) {
+    var z = Number();
+    z.num.add(num, y.num);
+    return z;
   }
 
+  // Returns z = x - y
   Number subtract(Number y) {
+    var z = Number();
+    z.num.subtract(num, y.num);
+    return z;
   }
 
+  // Returns z = x × y
   Number multiply(Number y) {
+    var z = Number();
+    z.num.multiply(num, y.num);
+    return z;
   }
 
+  // Returns z = x × y
   Number multiplyInteger(int y) {
+    var z = Number();
+    z.num.multiplyInt(num, y);
+    return z;
   }
 
+  // Returns z = x ÷ y
   Number divide(Number y) {
+    if (y.isZero()) {
+      error = 'Division by zero';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.divide(num, y.num);
+    return z;
   }
 
+  // Returns z = x ÷ y
   Number divideInteger(int y) {
+    return divide(Number.fromInt(y));
   }
 
+  // Sets z = x mod y
   Number modulusDivide(Number y) {
+    if (!isInteger() || !y.isInteger()) {
+      error = 'Modulus division is only defined for integers';
+      return Number.fromInt(0);
+    }
+
+    var t1 = divide(y).floor();
+    var t2 = t1.multiply(y);
+    var z = subtract(t2);
+
+    t1 = Number.fromInt(0);
+    if ((y.compare(t1) < 0 && z.compare(t1) > 0) || (y.compare(t1) > 0 && z.compare(t1) < 0)) {
+      z = z.add(y);
+    }
+
+    return z;
   }
 
   Number modularExponentiation(Number exp, Number mod) {
