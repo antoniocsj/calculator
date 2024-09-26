@@ -72,9 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void test_2() async {
     while (true) {
       // Real x = Real.fromDouble(3.6, 1000);
-      Real x = Real.fromString('3.6', 10, 10000000);
-      // print('x: ${x.getDouble()}');
-      // print('x: ${x.getString1()}');
+      Real x = Real.fromString('3.6', 10, 100000);
+      Complex y = Complex.fromDouble(1.8, 2.0, 100000);
       await Future.delayed(const Duration(milliseconds: 100));
       // x.dispose();
     }

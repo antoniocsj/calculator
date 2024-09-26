@@ -54,9 +54,21 @@ final DynamicLibrary _mpc = DynamicLibrary.open('libmpc.so');
 
 var mpc = MPCNativeLib(_mpc);
 
+void _mpcFinalizer(mpc_ptr ptr) {
+  mpc.mpc_clear(ptr);
+  calloc.free(ptr);
+}
+
 // classe Complex: Representa um número complexo com precisão arbitrária
-class Complex {
+class Complex implements Finalizable {
+  // Finalizador
+  // O finalizador é chamado quando o objeto é coletado pelo coletor de lixo
+  static final _finalizer = Finalizer(_mpcFinalizer);
+  
   late mpc_ptr _complex;
+
+  // variável usada para prevenir o uso do número real após a chamada de dispose
+  bool _disposed = false;
 
   // Retorna um ponteiro para a estrutura mpc_t
   mpc_ptr getPointer() {
@@ -86,6 +98,7 @@ class Complex {
   Complex([this._precision = 256]) {
     _complex = calloc<mpc_struct>();
     mpc.mpc_init2(_complex, _precision);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor a partir de dois doubles
@@ -93,6 +106,7 @@ class Complex {
     _complex = calloc<mpc_struct>();
     mpc.mpc_init2(_complex, _precision);
     setDouble(real, imaginary);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor a partir de dois complexos
@@ -100,6 +114,7 @@ class Complex {
     _complex = calloc<mpc_struct>();
     mpc.mpc_init2(_complex, _precision);
     setReal(re.getReal(), imag.getReal());
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor a partir de dois inteiros com sinal
@@ -107,6 +122,7 @@ class Complex {
     _complex = calloc<mpc_struct>();
     mpc.mpc_init2(_complex, _precision);
     mpc.mpc_set_si_si(_complex, real, imaginary, MPC_RNDNN);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor a partir de dois inteiros sem sinal
@@ -114,6 +130,7 @@ class Complex {
     _complex = calloc<mpc_struct>();
     mpc.mpc_init2(_complex, _precision);
     mpc.mpc_set_ui_ui(_complex, real, imaginary, MPC_RNDNN);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor a partir de dois objetos Real
@@ -121,6 +138,7 @@ class Complex {
     _complex = calloc<mpc_struct>();
     mpc.mpc_init2(_complex, _precision);
     setReal(real, imaginary);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor da constante de Euler
@@ -130,6 +148,7 @@ class Complex {
     setInt(0, 0);
     var rePtr = getRealPointer();
     mpfr.mpfr_const_euler(rePtr, mpfr_rnd_t.MPFR_RNDN);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor da constante Pi
@@ -139,6 +158,7 @@ class Complex {
     setInt(0, 0);
     var rePtr = getRealPointer();
     mpfr.mpfr_const_pi(rePtr, mpfr_rnd_t.MPFR_RNDN);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
   // Construtor da constante Tau (2*Pi)
@@ -149,10 +169,16 @@ class Complex {
     var rePtr = getRealPointer();
     mpfr.mpfr_const_pi(rePtr, mpfr_rnd_t.MPFR_RNDN);
     mpfr.mpfr_mul_si(rePtr, rePtr, 2, mpfr_rnd_t.MPFR_RNDN);
+    _finalizer.attach(this, _complex, detach: this);
   }
 
-  // Destrutor
+  // Libera a memória alocada para o número complexo
   void dispose() {
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
+    _finalizer.detach(this);
     mpc.mpc_clear(_complex);
     calloc.free(_complex);
   }

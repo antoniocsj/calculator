@@ -7,16 +7,16 @@ final DynamicLibrary _mpfr = DynamicLibrary.open('libmpfr.so');
 
 var mpfr = MPFRNativeLib(_mpfr);
 
-void _customFinalizer(mpfr_ptr ptr) {
+void _realFinalizer(mpfr_ptr ptr) {
   mpfr.mpfr_clear(ptr);
   calloc.free(ptr);
 }
 
 // classe Real: Representa um número real com precisão arbitrária
 class Real implements Finalizable {
-  // Finalizador para a classe Real
+  // Finalizador
   // O finalizador é chamado quando o objeto é coletado pelo coletor de lixo
-  static final _finalizer = Finalizer(_customFinalizer);
+  static final _finalizer = Finalizer(_realFinalizer);
 
   // Ponteiro para a estrutura mpfr_t
   late mpfr_ptr _number;

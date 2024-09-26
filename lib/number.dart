@@ -257,7 +257,7 @@ class Number {
 
   /* Returns z = {x} */
   Number fractionalPart() {
-    // return subtract(floor());
+
   }
 
   // Returns z = ⌊x⌋
@@ -371,16 +371,86 @@ class Number {
     return z;
   }
 
+  // Sets z = n√x
   Number root(int n) {
+    int p;
+
+    var z = Number();
+    if (n == 0) {
+      error = '0√x is undefined';
+      return Number.fromInt(0);
+    }
+    else if (n < 0) {
+      // n√x = 1 / n√(1/x)
+      z.num.uIntDivide(1, num);
+      p = -n;
+    }
+    else {
+      z.num.setComplex(num);
+      p = n;
+    }
+
+    if (!isComplex() && (!isNegative() || p % 2 == 1)) {
+      // If x is real and non-negative or n is odd, we can take the real version of the nth root
+      var rePtrZ = z.num.getRealPointer();
+      var imPtrZ = z.num.getImaginaryPointer();
+
+      mpfr.mpfr_root(rePtrZ, rePtrZ, p, mpfr_rnd_t.MPFR_RNDN);
+      mpfr.mpfr_set_zero(imPtrZ, 1);
+    }
+    else {
+      // If x is complex or negative and n is even, we can't take the real version of the nth root
+      // but we can take the complex version of the nth root using the function mpc_root
+      var tmp = Real(precision);
+
+      tmp.setUInt(p);
+      tmp.uintDiv(1, tmp);
+
+      z.num.powerReal(z.num, tmp);
+    }
+
+    return z;
   }
 
+  // Sets z = √x
   Number sqrt() {
+    return root(2);
   }
 
+  // Sets z = ln x
   Number ln() {
+    // ln(0) is undefined
+    if (isZero()) {
+      error = 'ln(0) is undefined';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.log(num);
+
+    // MPC returns -π for the imaginary part of the log of
+    // negative real numbers if their imaginary part is -0 (which
+    // it is in the numbers created by test-equation), we want +π
+    // for all real negative numbers
+    if (!isComplex() && isNegative()) {
+      var imPtrZ = z.num.getImaginaryPointer();
+      mpfr.mpfr_abs(imPtrZ, imPtrZ, mpfr_rnd_t.MPFR_RNDN);
+    }
+
+    return z;
   }
 
+  /* Sets z = log_n x */
   Number logarithm(int n) {
+    // log_n(0) is undefined
+    if (isZero()) {
+      error = 'log_n(0) is undefined';
+      return Number.fromInt(0);
+    }
+
+    // log_n(x) = ln(x) / ln(n)
+    var z = Number.fromInt(n);
+    return ln().divide(z.ln());
   }
 
   Number factorial() {
