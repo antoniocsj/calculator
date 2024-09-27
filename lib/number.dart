@@ -552,58 +552,243 @@ class Number {
     return z;
   }
 
+  // Returns z = x ^ y mod p
   Number modularExponentiation(Number exp, Number mod) {
+    var baseValue = copy();
+
+    if (exp.isNegative()) {
+      baseValue = baseValue.reciprocal();
+    }
+
+    var expValue = exp.abs();
+    var ans = Number.fromInt(1);
+    var two = Number.fromInt(2);
+
+    while (!expValue.isZero()) {
+      bool isEven = expValue.modulusDivide(two).isZero();
+      if (!isEven) {
+        ans = ans.multiply(baseValue).modulusDivide(mod);
+      } else {
+        baseValue = baseValue.multiply(baseValue).modulusDivide(mod);
+        expValue = expValue.divideInteger(2).floor();
+      }
+    }
+
+    return ans.modulusDivide(mod);
   }
 
+  // Returns z = sin x
   Number sin([AngleUnit unit = AngleUnit.radians]) {
+    var z = Number();
+
+    if (isComplex()) {
+      z.num.setComplex(num);
+    } else {
+      mpcFromRadians(z.num, num, unit);
+    }
+
+    z.num.sin(z.num);
+    return z;
   }
 
+  // Returns z = cos x
   Number cos([AngleUnit unit = AngleUnit.radians]) {
+    var z = Number();
+
+    if (isComplex()) {
+      z.num.setComplex(num);
+    } else {
+      mpcFromRadians(z.num, num, unit);
+    }
+
+    z.num.cos(z.num);
+    return z;
   }
 
+  // Returns z = tan x
   Number tan([AngleUnit unit = AngleUnit.radians]) {
+    // Check for undefined values
+    var xRadians = toRadians(unit);
+    var check = xRadians.subtract(Number.pi().divideInteger(2)).divide(Number.pi());
+
+    if (check.isInteger()) {
+      error = 'tan(π/2 + nπ) is undefined';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+
+    if (isComplex()) {
+      z.num.setComplex(num);
+    } else {
+      mpcToRadians(z.num, num, unit);
+    }
+
+    z.num.tan(z.num);
+    return z;
   }
 
+  /* Returns z = sin⁻¹ x */
   Number asin([AngleUnit unit = AngleUnit.radians]) {
+    if (compare(Number.fromInt(1)) > 0 || compare(Number.fromInt(-1)) < 0) {
+      error = 'asin(x) is only defined for -1 ≤ x ≤ 1';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.asin(num);
+
+    if (!z.isComplex()) {
+      mpcFromRadians(z.num, z.num, unit);
+    }
+
+    return z;
   }
 
+  /* Returns z = cos⁻¹ x */
   Number acos([AngleUnit unit = AngleUnit.radians]) {
+    if (compare(Number.fromInt(1)) > 0 || compare(Number.fromInt(-1)) < 0) {
+      error = 'acos(x) is only defined for -1 ≤ x ≤ 1';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.acos(num);
+
+    if (!z.isComplex()) {
+      mpcFromRadians(z.num, z.num, unit);
+    }
+
+    return z;
   }
 
+  /* Returns z = tan⁻¹ x */
   Number atan([AngleUnit unit = AngleUnit.radians]) {
+    // Check x != i and x != -i
+    if (equals(Number.i()) || equals(Number.i().invertSign())) {
+      error = 'atan(±i) is undefined';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.atan(num);
+
+    if (!z.isComplex()) {
+      mpcFromRadians(z.num, z.num, unit);
+    }
+
+    return z;
   }
 
+  // Returns z = sinh x
   Number sinh() {
+    var z = Number();
+    z.num.sinh(num);
+    return z;
   }
 
+  // Returns z = cosh x
   Number cosh() {
+    var z = Number();
+    z.num.cosh(num);
+    return z;
   }
 
+  // Returns z = tanh x
   Number tanh() {
+    var z = Number();
+    z.num.tanh(num);
+    return z;
   }
 
+  // Returns z = sinh⁻¹ x
   Number asinh() {
+    var z = Number();
+    z.num.asinh(num);
+    return z;
   }
 
+  // Returns z = cosh⁻¹ x
   Number acosh() {
+    // Check x >= 1
+    var t = Number.fromInt(1);
+
+    if (compare(t) < 0) {
+      error = 'acosh(x) is only defined for x ≥ 1';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.acosh(num);
+
+    return z;
   }
 
+  // Returns z = tanh⁻¹ x
   Number atanh() {
+    // Check -1 <= x <= 1
+    if (compare(Number.fromInt(1)) >= 0 || compare(Number.fromInt(-1)) <= 0) {
+      error = 'atanh(x) is only defined for -1 ≤ x ≤ 1';
+      return Number.fromInt(0);
+    }
+
+    var z = Number();
+    z.num.atanh(num);
+
+    return z;
   }
 
+  // Returns z = boolean AND for each bit in x and z
   Number and(Number y) {
+    if (!isPositiveInteger() || !y.isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
+    }
+
+    return bitwise(y, (int v1, int v2) => v1 & v2, 0);
   }
 
+  // Returns z = boolean OR for each bit in x and z
   Number or(Number y) {
+    if (!isPositiveInteger() || !y.isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
+    }
+
+    return bitwise(y, (int v1, int v2) => v1 | v2, 0);
   }
 
+  // Returns z = boolean XOR for each bit in x and z
   Number xor(Number y) {
+    if (!isPositiveInteger() || !y.isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
+    }
+
+    return bitwise(y, (int v1, int v2) => v1 ^ v2, 0);
   }
 
+  // Returns z = boolean NOT for each bit in x and z for word of length 'wordlen'
   Number not(int wordlen) {
+    if (!isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
+    }
+
+    return bitwise(Number.fromInt(0), (int v1, int v2) => v1 ^ 0xF, wordlen);
   }
 
+  // Returns z = x masked to 'wordlen' bits
   Number mask(Number x, int wordlen) {
+    // Convert to a hexadecimal string and use last characters
+    var text = x.toHexString();
+    var len = text.length;
+    var offset = wordlen ~/ 4;
+
+    if (len > offset) {
+
+    }
+
   }
 
   Number shift(int count) {
@@ -628,6 +813,9 @@ class Number {
   }
 
   Number copy() {
+    var z = Number();
+    z.num.setComplex(num);
+    return z;
   }
 
   static void mpcFromRadians(Complex res, Complex op, AngleUnit unit) {
