@@ -3,7 +3,7 @@ import 'package:calculator/enums.dart';
 import 'package:calculator/mpfr.dart';
 import 'package:calculator/mpfr_bindings.dart';
 import 'package:calculator/mpc.dart';
-// import 'package:calculator/mpc_bindings.dart';
+import 'package:calculator/types.dart';
 
 typedef BitwiseFunc = int Function(int v1, int v2);
 
@@ -1148,15 +1148,202 @@ class Number {
   }
 
   String toHexString() {
+    // var serializer = Serializer(DisplayFormat.fixed, 16);
+    // return serializer.toString(this);
   }
 
-  static int parseLiteralPrefix(String str, int prefixLen) {
+  static int parseLiteralPrefix(String str, RefInt prefixLen) {
+    var newBase = 0;
+
+    if (str.length < 3 || str[0] != '0') {
+      return newBase;
+    }
+
+    var prefix = str[1].toLowerCase();
+
+    if (prefix == 'b') {
+      newBase = 2;
+    } else if (prefix == 'o') {
+      newBase = 8;
+    } else if (prefix == 'x') {
+      newBase = 16;
+    } else {
+      return newBase;
+    }
+
+    if (newBase != 0) {
+      prefixLen.value = 2;
+    }
+
+    return newBase;
   }
 
+  //* Returns a string representation in 'text'
   Number? mpSetFromString(String str, [int defaultBase = 10, bool mayHavePrefix = true]) {
+    if (str.isEmpty) {
+      return null;
+    }
+
+    if (str.contains('°')) {
+      return setFromSexagesimal(str);
+    }
+
+    const List<String> baseDigits = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
+    int index = 0;
+    int basePrefix = 0;
+    int end = str.length;
+    int numberBase = 0;
+    int literalBase = 0;
+    int baseMultiplier = 1;
+
+    int i = 0;
+    for (i = str.length - 1; i >= 0; i--) {
+      var value = baseDigits.indexOf(str[i]);
+
+      if (value < 0) {
+        break;
+      }
+
+      index = i;
+      end = index;
+      numberBase += value * baseMultiplier;
+    }
+
+    if (mayHavePrefix) {
+      RefInt refBasePrefix = RefInt(0);
+      literalBase = parseLiteralPrefix(str, refBasePrefix);
+      basePrefix = refBasePrefix.value;
+    }
+
+    if (numberBase != 0 && literalBase != 0 && literalBase != numberBase) {
+      return null;
+    }
+
+    if (numberBase == 0) {
+      numberBase = literalBase != 0 ? literalBase : defaultBase;
+    }
+
+    // Check if this has a sign
+    bool negate = false;
+    index = basePrefix;
+    String c = str[index];
+    if (c == '+') {
+      negate = false;
+    } else if (c == '-' || c == '−') {
+      negate = true;
+    } else {
+      index--;
+    }
+
+    // Convert integer part
+    Number z = Number.fromInt(0);
+
+    while (index < str.length) {
+      c = str[index++];
+      var i = charVal(c, numberBase);
+
+      if (i > numberBase) {
+        return null;
+      }
+
+      if (i < 0) {
+        c = str[index--];
+        break;
+      }
+
+      z = z.multiplyInteger(numberBase).add(Number.fromInt(i));
+    }
+
+    // Look for fraction characters, e.g. ⅚
+    const List<String> fractions = ['½', '⅓', '⅔', '¼', '¾', '⅕', '⅖', '⅗', '⅘', '⅙', '⅚', '⅛', '⅜', '⅝', '⅞'];
+    const List<int> numerators = [1, 1, 2, 1, 3, 1, 2, 3, 4, 1, 5, 1, 3, 5, 7];
+    const List<int> denominators = [2, 3, 3, 4, 4, 5, 5, 5, 5, 6, 6, 8, 8, 8, 8];
+    bool hasFraction = false;
+
+    if (index < str.length) {
+      c = str[index++];
+      for (int i = 0; i < fractions.length; i++) {
+        if (c == fractions[i]) {
+          var fraction = Number.fromFraction(numerators[i], denominators[i]);
+          z = z.add(fraction);
+
+          // Must end with fraction
+          if (index == str.length) {
+            return z;
+          } else {
+            return null;
+          }
+        }
+      }
+
+      // Check for decimal point
+      if (c == '.') {
+        hasFraction = true;
+      } else {
+        c = str[index--];
+      }
+    }
+
+    // Convert fractional part
+    if (hasFraction) {
+      var numerator = Number.fromInt(0);
+      var denominator = Number.fromInt(1);
+
+      while (index < str.length) {
+        c = str[index++];
+        var i = charVal(c, numberBase);
+
+        if (i < 0) {
+          c = str[index--];
+          break;
+        }
+
+        denominator = denominator.multiplyInteger(numberBase);
+        numerator = numerator.multiplyInteger(numberBase).add(Number.fromInt(i));
+      }
+
+      z = z.add(numerator.divide(denominator));
+    }
+
+    if (index != end) {
+      return null;
+    }
+
+    if (negate) {
+      z = z.invertSign();
+    }
+
+    return z;
   }
 
   int charVal(String c, int numberBase) {
+    if (!isHexDigit(c)) {
+      return -1;
+    }
+
+    int value = hexDigitValue(c);
+
+    if (value >= numberBase) {
+      return -1;
+    }
+
+    return value;
+  }
+
+  bool isHexDigit(String c) {
+    return RegExp(r'^[0-9a-fA-F]$').hasMatch(c);
+  }
+
+  int hexDigitValue(String c) {
+    if (c.codeUnitAt(0) >= '0'.codeUnitAt(0) && c.codeUnitAt(0) <= '9'.codeUnitAt(0)) {
+      return c.codeUnitAt(0) - '0'.codeUnitAt(0);
+    } else if (c.codeUnitAt(0) >= 'a'.codeUnitAt(0) && c.codeUnitAt(0) <= 'f'.codeUnitAt(0)) {
+      return 10 + c.codeUnitAt(0) - 'a'.codeUnitAt(0);
+    } else if (c.codeUnitAt(0) >= 'A'.codeUnitAt(0) && c.codeUnitAt(0) <= 'F'.codeUnitAt(0)) {
+      return 10 + c.codeUnitAt(0) - 'A'.codeUnitAt(0);
+    } else {
+      return -1;
+    }
   }
 
   Number? setFromSexagesimal(String str) {
