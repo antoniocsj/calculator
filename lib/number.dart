@@ -257,7 +257,7 @@ class Number {
 
   /* Returns z = {x} */
   Number fractionalPart() {
-
+    return subtract(floor());
   }
 
   // Returns z = ⌊x⌋
@@ -785,31 +785,233 @@ class Number {
     var len = text.length;
     var offset = wordlen ~/ 4;
 
-    if (len > offset) {
+    offset = len > offset ? len - offset: 0;
 
+    var z = mpSetFromString(text.substring(offset), 16, false);
+
+    if (z == null) {
+      error = 'Invalid hexadecimal string';
+      return Number.fromInt(0);
+    } else {
+      return z;
+    }
+  }
+
+  // Returns z = x shifted by 'count' bits.  Positive shift increases the value, negative decreases
+  Number shift(int count) {
+    if (!isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
     }
 
+    // Initialize an integer 2^count
+    var operand = Number.fromUInt(2).xpowyInteger(count.abs());
+
+    // If positive shift return x*operand
+    if (count >= 0) {
+      return multiply(operand);
+    } else {
+      // If negative return floor ( x/operand )
+      if (compare(operand) < 0) {
+        error = 'Shift operation underflow';
+        return Number.fromInt(0);
+      }
+      return divide(operand).floor();
+    }
   }
 
-  Number shift(int count) {
-  }
-
+  // Returns the ones complement of x for word of length 'wordlen'
   Number onesComplement(int wordlen) {
+    if (!isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
+    }
+
+    return bitwise(Number.fromInt(0), (int v1, int v2) => v1 ^ v2, wordlen).not(wordlen);
   }
 
+  // Returns the twos complement of x for word of length 'wordlen'
   Number twosComplement(int wordlen) {
+    if (!isPositiveInteger()) {
+      error = 'Bitwise operations are only defined for positive integers';
+      return Number.fromInt(0);
+    }
+
+    return onesComplement(wordlen).add(Number.fromInt(1));
   }
 
+  // In: An p := p \in 2Z+1; An b := gcd(b,p) = 1
+  // Out:  A boolean showing that p is probably prime
   bool isSprp(Number p, int b) {
+    var unit = Number.fromUInt(1);
+    var pMinusOne = p.subtract(unit);
+    var d = pMinusOne;
+    var two = Number.fromUInt(2);
+
+    // Factor out powers of 2 from p-1
+    int twofactor = 0;
+
+    while (true) {
+      var tmp = d.divide(two);
+      if (tmp.isInteger()) {
+        d = tmp;
+        twofactor++;
+      } else {
+        break;
+      }
+    }
+
+    var x = Number.fromUInt(b).modularExponentiation(d, p);
+
+    if (x.equals(unit) || x.equals(pMinusOne)) {
+      return true;
+    }
+
+    for (var i = 0; i < twofactor; i++) {
+      x = x.multiply(x).modulusDivide(p);
+
+      if (x.equals(pMinusOne)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
+  // In : An x := x \in 2Z+1 and gcd(x,[2,..,2ln(2)**2])=1
+  // Out: A boolean correctly evaluating x as composite or prime assuming the GRH
+  //
+  // Even if the GRH is false, the probability of number-theoretic error is far lower than
+  // machine error */
   bool isPrime(Number x) {
+    // initializes bases as an array of the first 13 prime numbers
+    var bases = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41];
+
+    var sup = x.ln().toUnsignedInteger() + 1;
+
+    // J.Sorenson & J.Webster's  optimization
+    if (sup < 56) {
+      for (var i = 0; i < bases.length; i++) {
+        if (!isSprp(x, bases[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+    else {
+      sup = 2 * sup * sup;
+
+      for (var i = 0; i < sup; i++) {
+        if (!isSprp(x, i)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
   }
 
+  // Returns a list of all prime factors in x as Numbers
   List<Number> factorize() {
+    var factors = <Number>[];
+    var value = abs();
+
+    if (value.isZero()) {
+      factors.add(value);
+      return factors;
+    }
+
+    if (value.equals(Number.fromInt(1))) {
+      factors.add(this);
+      return factors;
+    }
+
+    if (value.compare(Number.fromInt(0xFFFFFFFF)) > 0) {
+      if (isPrime(value)) {
+        factors.add(value);
+        return factors;
+      }
+    }
+
+    // if value < 2^64-1, call for factorize_uint64 function which deals in integers
+    var intMax = Number.fromUInt(0xFFFFFFFFFFFFFFFF);
+
+    if (value.compare(intMax) <= 0) {
+      var factorsInt64 = factorizeUint64(value.toUnsignedInteger());
+
+      if (isNegative()) {
+        // invert the sign of the factors in factorsInt64
+        for (var i = 0; i < factorsInt64.length; i++) {
+          factorsInt64[i] = factorsInt64[i].invertSign();
+        }
+      }
+
+      return factorsInt64;
+    }
+
+    var divisor = Number.fromInt(2);
+
+    while (true) {
+      var tmp = value.divide(divisor);
+
+      if (tmp.isInteger()) {
+        value = tmp;
+        factors.add(divisor);
+      } else {
+        break;
+      }
+    }
+
+    divisor = Number.fromInt(3);
+    var root = value.sqrt();
+
+    while (divisor.compare(root) <= 0) {
+      var tmp = value.divide(divisor);
+
+      if (tmp.isInteger()) {
+        value = tmp;
+        root = value.sqrt();
+        factors.add(divisor);
+      } else {
+        divisor = divisor.add(Number.fromInt(2));
+      }
+    }
+
+    if (value.compare(Number.fromInt(1)) > 0) {
+      factors.add(value);
+    }
+
+    if (isNegative()) {
+      // invert the sign of the factors in factors
+      for (var i = 0; i < factors.length; i++) {
+        factors[i] = factors[i].invertSign();
+      }
+    }
+
+    return factors;
   }
 
+  // Returns a list of all prime factors in x as Numbers
   List<Number> factorizeUint64(int n) {
+    var factors = <Number>[];
+
+    while (n % 2 == 0) {
+      n ~/= 2;
+      factors.add(Number.fromUInt(2));
+    }
+
+    for (int divisor = 3; divisor <= n / divisor; divisor += 2) {
+      while (n % divisor == 0) {
+        n ~/= divisor;
+        factors.add(Number.fromUInt(divisor));
+      }
+    }
+
+    if (n > 1) {
+      factors.add(Number.fromUInt(n));
+    }
+
+    return factors;
   }
 
   Number copy() {
@@ -885,10 +1087,64 @@ class Number {
   }
 
   Number bitwise(Number y, BitwiseFunc bitwiseOperator, int wordlen) {
+    var text1 = toHexString();
+    var text2 = y.toHexString();
+    var offset1 = text1.length - 1;
+    var offset2 = text2.length - 1;
+    var offsetOut = wordlen ~/ 4 - 1;
 
+    if (offsetOut < 0) {
+      offsetOut = offset1 > offset2 ? offset1 : offset2;
+    }
+
+    if (offsetOut > 0 && (offsetOut < offset1 || offsetOut < offset2)) {
+      error = 'Bitwise operation overflow. Try a bigger word length';
+      return Number.fromInt(0);
+    }
+
+    // initialize a variable textOut to store the result of the bitwise operation
+    List<String> textOut = List.filled(offsetOut + 2, '');
+
+    for (textOut[offsetOut + 1] = ''; offsetOut >= 0; offsetOut--) {
+      int v1 = 0, v2 = 0;
+      const hexDigits = '0123456789ABCDEF';
+
+      if (offset1 >= 0) {
+        v1 = hexToInt(text1[offset1]);
+        offset1--;
+      }
+
+      if (offset2 >= 0) {
+        v2 = hexToInt(text2[offset2]);
+        offset2--;
+      }
+
+      textOut[offsetOut] = hexDigits[bitwiseOperator(v1, v2)];
+    }
+
+    var z = mpSetFromString(textOut.join(), 16, false);
+
+    if (z == null) {
+      error = 'Invalid hexadecimal string';
+      return Number.fromInt(0);
+    } else {
+      return z;
+    }
   }
 
+  // converts a single hexadecimal digit into its corresponding integer value
   int hexToInt(String digit) {
+    int d = digit.codeUnitAt(0);
+
+    if (d >= 48 && d <= 57) {
+      return d - 48;
+    } else if (d >= 65 && d <= 70) {
+      return d - 65 + 10;
+    } else if (d >= 97 && d <= 102) {
+      return d - 97 + 10;
+    } else {
+      return 0;
+    }
   }
 
   String toHexString() {
