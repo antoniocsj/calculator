@@ -1347,8 +1347,45 @@ class Number {
   }
 
   Number? setFromSexagesimal(String str) {
+    var degreeIndex = str.indexOf('°');
+    if (degreeIndex < 0) return null;
+
+    var degrees = mpSetFromString(str.substring(0, degreeIndex));
+    if (degrees == null) return null;
+
+    var minuteStart = degreeIndex + 1;
+    if (minuteStart >= str.length) return degrees;
+
+    var minuteIndex = str.indexOf('\'', minuteStart);
+    if (minuteIndex < 0) return null;
+
+    var minutes = mpSetFromString(str.substring(minuteStart, minuteIndex - minuteStart));
+    if (minutes == null) return null;
+
+    degrees = degrees.add(minutes.divideInteger(60));
+
+    var secondStart = minuteIndex + 1;
+    if (secondStart >= str.length) return degrees;
+
+    var secondIndex = str.indexOf('"', secondStart);
+    if (secondIndex < 0) return null;
+
+    var seconds = mpSetFromString(str.substring(secondStart, secondIndex - secondStart));
+    if (seconds == null) return null;
+
+    degrees = degrees.add(seconds.divideInteger(3600));
+
+    // Skip over second marker and expect no more characters
+    if (secondIndex + 1 == str.length) {
+      return degrees;
+    } else {
+      return null;
+    }
   }
 
+  // Returns true if x is cannot be represented in a binary word of length 'wordlen'
   bool mpIsOverflow(Number x, int wordlen) {
+    var z = Number.fromInt(2).xpowyInteger(wordlen);
+    return z.compare(x) > 0;
   }
 }
