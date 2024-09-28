@@ -184,7 +184,7 @@ class Serializer {
   }
 
   String _castToString(Number x, RefInt nDigits) {
-    var string = StringBuilder();
+    var string = StringBuffer();
 
     var xReal = x.realComponent();
     _castToStringReal(xReal, representationBase, false, nDigits, string);
@@ -197,7 +197,7 @@ class Serializer {
         forceSign = false;
       }
 
-      var s = StringBuilder();
+      var s = StringBuffer();
       RefInt nComplexDigits = RefInt(0);
 
       _castToStringReal(xImag, representationBase, forceSign, nComplexDigits, s);
@@ -235,7 +235,7 @@ class Serializer {
     return string.toString();
   }
 
-  void _castToStringReal(Number x, int numberBase, bool forceSign, RefInt nDigits, StringBuilder string) {
+  void _castToStringReal(Number x, int numberBase, bool forceSign, RefInt nDigits, StringBuffer string) {
     // var digits = "0123456789ABCDEF".split('');
     const List<String> digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8',
                                  '9', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -341,7 +341,7 @@ class Serializer {
     }
   }
 
-  int _castToExponentialStringReal(Number x, StringBuilder string, bool engFormat, RefInt nDigits) {
+  int _castToExponentialStringReal(Number x, StringBuffer string, bool engFormat, RefInt nDigits) {
     if (x.isNegative()) {
       string.append('-');
     }
@@ -383,7 +383,7 @@ class Serializer {
   }
 
   String _castToExponentialString(Number x, bool engFormat, RefInt nDigits) {
-    var string = StringBuilder();
+    var string = StringBuffer();
     var xReal = x.realComponent();
     var exponent = _castToExponentialStringReal(xReal, string, engFormat, nDigits);
     _appendExponent(string, exponent);
@@ -395,7 +395,7 @@ class Serializer {
         string.clear();
       }
 
-      var s = StringBuilder();
+      var s = StringBuffer();
       RefInt nComplexDigits = RefInt(0);
       exponent = _castToExponentialStringReal(xImag, s, engFormat, nComplexDigits);
 
@@ -432,7 +432,7 @@ class Serializer {
     return string.toString();
   }
 
-  void _appendExponent(StringBuilder string, int exponent) {
+  void _appendExponent(StringBuffer string, int exponent) {
     const List<String> superDigits = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
 
     if (exponent == 0) {

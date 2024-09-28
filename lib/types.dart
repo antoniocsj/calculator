@@ -24,9 +24,14 @@ class RefBool {
   RefBool(this.value);
 }
 
-class StringBuilder extends StringBuffer {
-  StringBuilder([super.content]);
+extension StringExtensions on String {
+  bool isDigit() {
+    if (length != 1) return false;
+    return contains(RegExp(r'^[0-9]$'));
+  }
+}
 
+extension StringBuilder on StringBuffer {
   void append(String object) {
     write(object);
   }
