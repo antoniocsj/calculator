@@ -1,12 +1,6 @@
-import 'package:calculator/number.dart';
+import 'package:calculator/enums.dart';
 import 'package:calculator/types.dart';
-
-enum DisplayFormat {
-  automatic,
-  fixed,
-  scientific,
-  engineering
-}
+import 'package:calculator/number.dart';
 
 class Serializer {
   late int leadingDigits; // Number of digits to show before radix

@@ -45,9 +45,9 @@ class Real implements Finalizable {
 
   // calcular a precisão em bits a partir da precisão em dígitos decimais.
   // fórmula usada: n_bits = ceil(n_digits * log2(10))
-  int get _calulatePrecisionInBits {
-    return (precisionInDigits * math.log(10) / math.log(2)).ceil();
-  }
+  // int get _calulatePrecisionInBits {
+  //   return (precisionInDigits * math.log(10) / math.log(2)).ceil();
+  // }
 
   // calcular o número de dígitos a partir do número de bits e da base
   int _calculateDigits(int bits, int base) {
@@ -58,12 +58,12 @@ class Real implements Finalizable {
   }
 
   // calcular o número de bits a partir do número de dígitos e da base
-  int _calculateBits(int digits, int base) {
-    if (base <= 1) {
-      throw ArgumentError('Base must be greater than 1');
-    }
-    return (digits * math.log(base) / math.log(2)).ceil();
-  }
+  // int _calculateBits(int digits, int base) {
+  //   if (base <= 1) {
+  //     throw ArgumentError('Base must be greater than 1');
+  //   }
+  //   return (digits * math.log(base) / math.log(2)).ceil();
+  // }
 
   // Construtor
   Real(this._precision) {
@@ -262,9 +262,9 @@ class Real implements Finalizable {
     if (numDigits <= 0) {
       nDigits = 0;
     } else {
-      print('Number of digits: $numDigits');
+      // print('Number of digits: $numDigits');
       nDigits = math.min(numDigits, maxNumDigits);
-      print('Number of digits (effective): $nDigits');
+      // print('Number of digits (effective): $nDigits');
     }
 
     Pointer<Utf8> template = '%.${nDigits}Rf'.toNativeUtf8(allocator: calloc);

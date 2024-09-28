@@ -1,4 +1,4 @@
-import 'enums.dart';
+import 'package:calculator/enums.dart';
 
 class PreLexer {
   String stream; // String being scanned

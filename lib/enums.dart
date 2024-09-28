@@ -1,3 +1,9 @@
+enum DisplayFormat {
+  automatic,
+  fixed,
+  scientific,
+  engineering
+}
 
 enum AngleUnit {
   radians,
