@@ -43,37 +43,137 @@ class PreLexer {
     eos = false;
 
     var c = stream[index++];
-    switch (c) {
-      case ',':
-      case '.':
-        return LexerTokenType.plDecimal;
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        return LexerTokenType.plDigit;
-      case 'A':
-      case 'B':
-      case 'C':
-      case 'D':
-      case 'E':
-      case 'F':
-        return LexerTokenType.plHex;
-      case '-':
-        return LexerTokenType.plSuperMinus;
-      case ' ':
-      case '\n':
-      case '\t':
-        return LexerTokenType.plSkip;
-      default:
-        return LexerTokenType.plLetter;
+
+    if (c == ',' || c == '.') {
+      return LexerTokenType.plDecimal;
     }
+    // checks if (c >= '0' && c <= '9')
+    if (c.isDigit()) {
+      return LexerTokenType.plDigit;
+    }
+    // checks if ((c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))
+    if (c.isHexDigit()) {
+      return LexerTokenType.plHex;
+    }
+    if (c == '⁰' || c == '¹' || c == '²' || c == '³' || c == '⁴' || c == '⁵' || c == '⁶' || c == '⁷' || c == '⁸' || c == '⁹') {
+      return LexerTokenType.plSubDigit;
+    }
+    if (c == '⁻') {
+      return LexerTokenType.plSuperMinus;
+    }
+    if (c == '₀' || c == '₁' || c == '₂' || c == '₃' || c == '₄' || c == '₅' || c == '₆' || c == '₇' || c == '₈' || c == '₉') {
+      return LexerTokenType.plSubDigit;
+    }
+    if (c == '½' || c == '⅓' || c == '⅔' || c == '¼' || c == '¾' || c == '⅕' || c == '⅖' || c == '⅗' || c == '⅘' || c == '⅙' || c == '⅚' || c == '⅛' || c == '⅜' || c == '⅝' || c == '⅞') {
+      return LexerTokenType.plFraction;
+    }
+    if (c == '˚' || c == '°') {
+      return LexerTokenType.plDegree;
+    }
+    if (c == '\'') {
+      return LexerTokenType.plMinute;
+    }
+    if (c == '"') {
+      return LexerTokenType.plSecond;
+    }
+    if (c.isAlpha() || c == '_' || c == '\\') {
+      return LexerTokenType.plLetter;
+    }
+    if (c == '∧') {
+      return LexerTokenType.and;
+    }
+    if (c == '∨') {
+      return LexerTokenType.or;
+    }
+    if (c == '⊻' || c == '⊕') {
+      return LexerTokenType.xor;
+    }
+    if (c == '¬' || c == '~') {
+      return LexerTokenType.not;
+    }
+    if (c == '+') {
+      return LexerTokenType.add;
+    }
+    if (c == '-' || c == '−' || c == '–') {
+      return LexerTokenType.subtract;
+    }
+    if (c == '*' || c == '×') {
+      return LexerTokenType.multiply;
+    }
+    if (c == '/' || c == '∕' || c == '÷') {
+      return LexerTokenType.divide;
+    }
+    if (c == '⌊') {
+      return LexerTokenType.lFloor;
+    }
+    if (c == '⌋') {
+      return LexerTokenType.rFloor;
+    }
+    if (c == '⌈') {
+      return LexerTokenType.lCeiling;
+    }
+    if (c == '⌉') {
+      return LexerTokenType.rCeiling;
+    }
+    if (c == '√') {
+      return LexerTokenType.root;
+    }
+    if (c == '∛') {
+      return LexerTokenType.root_3;
+    }
+    if (c == '∜') {
+      return LexerTokenType.root_4;
+    }
+    if (c == '=') {
+      return LexerTokenType.assign;
+    }
+    if (c == '(') {
+      return LexerTokenType.lRBracket;
+    }
+    if (c == ')') {
+      return LexerTokenType.rRBracket;
+    }
+    if (c == '[') {
+      return LexerTokenType.lSBracket;
+    }
+    if (c == ']') {
+      return LexerTokenType.rSBracket;
+    }
+    if (c == '{') {
+      return LexerTokenType.lCBracket;
+    }
+    if (c == '}') {
+      return LexerTokenType.rCBracket;
+    }
+    if (c == '|') {
+      return LexerTokenType.abs;
+    }
+    if (c == '^') {
+      return LexerTokenType.power;
+    }
+    if (c == '!') {
+      return LexerTokenType.factorial;
+    }
+    if (c == '%') {
+      return LexerTokenType.percentage;
+    }
+    if (c == ';') {
+      return LexerTokenType.argumentSeparator;
+    }
+    if (c == '»') {
+      return LexerTokenType.shiftRight;
+    }
+    if (c == '«') {
+      return LexerTokenType.shiftLeft;
+    }
+    if (c == ' ' || c == '\r' || c == '\t' || c == '\n') {
+      return LexerTokenType.plSkip;
+    }
+    if (c == '@') {
+      return LexerTokenType.funcDescSeparator;
+    }
+
+    return LexerTokenType.unknown;
   }
 }
 

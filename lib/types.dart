@@ -29,6 +29,16 @@ extension StringExtensions on String {
     if (length != 1) return false;
     return contains(RegExp(r'^[0-9]$'));
   }
+
+  bool isHexDigit() {
+    if (length != 1) return false;
+    return contains(RegExp(r'^[0-9a-fA-F]$'));
+  }
+
+  bool isAlpha() {
+    if (length != 1) return false;
+    return contains(RegExp(r'^[a-zA-Z]$'));
+  }
 }
 
 extension StringBuilder on StringBuffer {
