@@ -40,23 +40,68 @@ class Serializer {
   String serialize(Number x) {
     // For base conversion equation, use FIXED format
     if (representationBase != numberBase) {
-      // Handle base conversion
+      RefInt nDigits = RefInt(0);
+      return _castToString(x, nDigits);
     }
 
     switch (format) {
-      case DisplayFormat.AUTOMATIC:
-      // Handle automatic format
-        break;
       case DisplayFormat.FIXED:
-        return _castToString(x);
+        RefInt nDigits = RefInt(0);
+        return _castToString(x, nDigits);
       case DisplayFormat.SCIENTIFIC:
-      // Handle scientific format
-        break;
+        if (representationBase == 10) {
+          RefInt nDigits = RefInt(0);
+          return _castToExponentialString(x, false, nDigits);
+        } else {
+          RefInt nDigits = RefInt(0);
+          return _castToString(x, nDigits);
+        }
       case DisplayFormat.ENGINEERING:
-      // Handle engineering format
-        break;
+        if (representationBase == 10) {
+          RefInt nDigits = RefInt(0);
+          return _castToExponentialString(x, true, nDigits);
+        } else {
+          RefInt nDigits = RefInt(0);
+          return _castToString(x, nDigits);
+        }
+      case DisplayFormat.AUTOMATIC:
+      default:
+        RefInt nDigits = RefInt(0);
+        var s0 = _castToString(x, nDigits);
+
+        // Decide leading digits based on number_base. Support 64 bits in programming mode.
+        switch (getBase()) {
+          // 64 digits for binary mode.
+          case 2:
+            if (nDigits.value  <= 64) {
+              return s0;
+            } else {
+              return _castToExponentialString(x, false, nDigits);
+            }
+          // 22 digits for decimal mode.
+          case 8:
+            if (nDigits.value <= 22) {
+              return s0;
+            } else {
+              return _castToExponentialString(x, false, nDigits);
+            }
+          // 16 digits for hexadecimal mode.
+          case 16:
+            if (nDigits.value <= 16) {
+              return s0;
+            } else {
+              return _castToExponentialString(x, false, nDigits);
+            }
+          // Use default leading_digits for base 10 numbers.
+          case 10:
+          default:
+            if (nDigits.value <= leadingDigits) {
+              return s0;
+            } else {
+              return _castToExponentialString(x, false, nDigits);
+            }
+        }
     }
-    return '';
   }
 
   Number? fromString(String str) {
@@ -150,14 +195,56 @@ class Serializer {
     var xReal = x.realComponent();
     _castToStringReal(xReal, representationBase, false, nDigits, string);
     if (x.isComplex()) {
-      // Handle complex number formatting
+      var xImag = x.imaginaryComponent();
+      var forceSign = true;
+
+      if (string.toString() == '0') {
+        string.clear();
+        forceSign = false;
+      }
+
+      var s = StringBuilder();
+      RefInt nComplexDigits = RefInt(0);
+
+      _castToStringReal(xImag, representationBase, forceSign, nComplexDigits, s);
+
+      if (nComplexDigits.value > nDigits.value) {
+        nDigits.value = nComplexDigits.value;
+      }
+
+      if (s.toString() == '0' || s.toString() == '+0' || s.toString() == '-0') {
+        if (string.toString() == '') {
+          string.assign('0'); // real component is empty, the imaginary very small, we shouldn't return blank
+        }
+      }
+      else if (s.toString() == '1') {
+        string.append('i');
+      }
+      else if (s.toString() == '+1') {
+        string.append('+i');
+      }
+      else if (s.toString() == '-1') {
+        string.append('-i');
+      }
+      else {
+        if (s.toString() == '+0') {
+          string.append('+');
+        }
+        else if (s.toString() != '0') {
+          string.append(s.toString());
+        }
+
+        string.append('i');
+      }
     }
 
     return string.toString();
   }
 
   void _castToStringReal(Number x, int numberBase, bool forceSign, RefInt nDigits, StringBuilder string) {
-    var digits = "0123456789ABCDEF".split('');
+    // var digits = "0123456789ABCDEF".split('');
+    const List<String> digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8',
+                                 '9', 'A', 'B', 'C', 'D', 'E', 'F'];
 
     var number = x;
     if (number.isNegative()) {
@@ -194,7 +281,7 @@ class Serializer {
         // Handle error
         string.prepend('?');
         error = "Overflow: the result couldn’t be calculated";
-        string.assign(error!);
+        string.assign('0');
         break;
       }
 
@@ -236,7 +323,7 @@ class Serializer {
     if (string.toString() != '0' || forceSign) {
       if (x.isNegative()) {
         string.prepend('-');
-      } else {
+      } else if (forceSign) {
         string.prepend('+');
       }
     }
@@ -281,21 +368,92 @@ class Serializer {
 
       while ((!engFormat && mantissa.compare(base_) >= 0) ||
               (engFormat && (mantissa.compare(base3) >= 0 || exponent % 3 != 0))) {
-        exponent += 3;
+        exponent += 1;
         mantissa = mantissa.divide(base_);
       }
 
+      while (!engFormat && mantissa.compare(base10inv) < 0) {
+        exponent -= 10;
+        mantissa = mantissa.multiply(base10);
+      }
 
+      t = Number.fromInt(1);
+      while (mantissa.compare(t) < 0 || (engFormat && exponent % 3 != 0)) {
+        exponent -= 1;
+        mantissa = mantissa.multiply(base_);
+      }
     }
+
+    string.append(_castToString(mantissa, nDigits));
+    return exponent;
   }
 
-  String _castToExponentialString(Number x, bool engFormat) {
-    var string = StringBuffer();
-    // Handle exponential string conversion
+  String _castToExponentialString(Number x, bool engFormat, RefInt nDigits) {
+    var string = StringBuilder();
+    var xReal = x.realComponent();
+    var exponent = _castToExponentialStringReal(xReal, string, engFormat, nDigits);
+    _appendExponent(string, exponent);
+
+    if (x.isComplex()) {
+      var xImag = x.imaginaryComponent();
+
+      if (string.toString() == '0') {
+        string.clear();
+      }
+
+      var s = StringBuilder();
+      RefInt nComplexDigits = RefInt(0);
+      exponent = _castToExponentialStringReal(xImag, s, engFormat, nComplexDigits);
+
+      if (nComplexDigits.value > nDigits.value) {
+        nDigits.value = nComplexDigits.value;
+      }
+
+      if (s.toString() == '0' || s.toString() == '+0' || s.toString() == '-0') {
+        // Do nothing
+      }
+      else if (s.toString() == '1') {
+        string.append('i');
+      }
+      else if (s.toString() == '+1') {
+        string.append('+i');
+      }
+      else if (s.toString() == '-1') {
+        string.append('-i');
+      }
+      else {
+        if (s.toString() == '+0') {
+          string.append('+');
+        }
+        else if (s.toString() != '0') {
+          string.append(s.toString());
+        }
+
+        string.append('i');
+      }
+
+      _appendExponent(string, exponent);
+    }
+
     return string.toString();
   }
 
-  void _appendExponent(StringBuffer string, int exponent) {
-    // Handle appending exponent
+  void _appendExponent(StringBuilder string, int exponent) {
+    const List<String> superDigits = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+
+    if (exponent == 0) {
+      return;
+    }
+
+    string.append('×10'); // FIXME: Use the current base
+    if (exponent < 0) {
+      exponent = -exponent;
+      string.append('⁻');
+    }
+
+    var superValue = '$exponent';
+    for (var i = 0; i < superValue.length; i++) {
+      string.append(superDigits[superValue[i].codeUnitAt(0) - '0'.codeUnitAt(0)]);
+    }
   }
 }
