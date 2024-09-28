@@ -260,20 +260,33 @@ class Serializer {
     }
   }
 
-  int _castToExponentialStringReal(Number x, StringBuffer string, bool engFormat) {
+  int _castToExponentialStringReal(Number x, StringBuilder string, bool engFormat, RefInt nDigits) {
     if (x.isNegative()) {
-      // Handle negative number
+      string.append('-');
     }
 
     var mantissa = x.abs();
-
-    var base = Number.fromInt(numberBase);
-    var base3 = base.xpowyInteger(3);
-    var base10 = base.xpowyInteger(10);
+    var base_ = Number.fromInt(numberBase);
+    var base3 = base_.xpowyInteger(3);
+    var base10 = base_.xpowyInteger(10);
     var t = Number.fromInt(1);
+    var base10inv = t.divide(base10);
 
-    // Handle exponential string conversion
-    return 0;
+    var exponent = 0;
+    if (!mantissa.isZero()) {
+      while (!engFormat && mantissa.compare(base10) >= 0) {
+        exponent += 10;
+        mantissa = mantissa.multiply(base10inv);
+      }
+
+      while ((!engFormat && mantissa.compare(base_) >= 0) ||
+              (engFormat && (mantissa.compare(base3) >= 0 || exponent % 3 != 0))) {
+        exponent += 3;
+        mantissa = mantissa.divide(base_);
+      }
+
+
+    }
   }
 
   String _castToExponentialString(Number x, bool engFormat) {
