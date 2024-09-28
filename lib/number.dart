@@ -4,6 +4,7 @@ import 'package:calculator/mpfr.dart';
 import 'package:calculator/mpfr_bindings.dart';
 import 'package:calculator/mpc.dart';
 import 'package:calculator/types.dart';
+import 'package:calculator/serializer.dart';
 
 typedef BitwiseFunc = int Function(int v1, int v2);
 
@@ -1148,8 +1149,8 @@ class Number {
   }
 
   String toHexString() {
-    // var serializer = Serializer(DisplayFormat.fixed, 16);
-    // return serializer.toString(this);
+    var serializer = Serializer(DisplayFormat.fixed, 16, 0);
+    return serializer.serialize(this);
   }
 
   static int parseLiteralPrefix(String str, RefInt prefixLen) {

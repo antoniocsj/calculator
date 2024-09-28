@@ -2,10 +2,10 @@ import 'package:calculator/number.dart';
 import 'package:calculator/types.dart';
 
 enum DisplayFormat {
-  AUTOMATIC,
-  FIXED,
-  SCIENTIFIC,
-  ENGINEERING
+  automatic,
+  fixed,
+  scientific,
+  engineering
 }
 
 class Serializer {
@@ -45,10 +45,10 @@ class Serializer {
     }
 
     switch (format) {
-      case DisplayFormat.FIXED:
+      case DisplayFormat.fixed:
         RefInt nDigits = RefInt(0);
         return _castToString(x, nDigits);
-      case DisplayFormat.SCIENTIFIC:
+      case DisplayFormat.scientific:
         if (representationBase == 10) {
           RefInt nDigits = RefInt(0);
           return _castToExponentialString(x, false, nDigits);
@@ -56,7 +56,7 @@ class Serializer {
           RefInt nDigits = RefInt(0);
           return _castToString(x, nDigits);
         }
-      case DisplayFormat.ENGINEERING:
+      case DisplayFormat.engineering:
         if (representationBase == 10) {
           RefInt nDigits = RefInt(0);
           return _castToExponentialString(x, true, nDigits);
@@ -64,7 +64,7 @@ class Serializer {
           RefInt nDigits = RefInt(0);
           return _castToString(x, nDigits);
         }
-      case DisplayFormat.AUTOMATIC:
+      case DisplayFormat.automatic:
       default:
         RefInt nDigits = RefInt(0);
         var s0 = _castToString(x, nDigits);
