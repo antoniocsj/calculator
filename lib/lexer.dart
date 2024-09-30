@@ -1,5 +1,7 @@
 import 'package:calculator/enums.dart';
+import 'package:calculator/mpfr_bindings.dart';
 import 'package:calculator/types.dart';
+import 'package:calculator/number.dart';
 
 // FIXME: Merge into lexer
 class PreLexer {
@@ -187,6 +189,7 @@ class LexerToken {
 }
 
 class Lexer {
+  Parser parser; // Reference to parser.
   final PreLexer prelexer; // Pre-lexer is part of lexer.
   final List<LexerToken> tokens = []; // List of LexerTokens.
   int nextToken = 0; // Index of next, to be sent, token.
@@ -197,18 +200,22 @@ class Lexer {
   void scan() {
     while (true) {
       var tokenType = prelexer.getNextToken();
-      if (tokenType == LexerTokenType.plEOS) break;
       insertToken(tokenType);
+      if (tokenType == LexerTokenType.plEOS) {
+        break;
+      }
     }
   }
 
+  // Get next token interface. Will be called by parser to get pointer to next token in token stream.
   LexerToken getNextToken() {
-    if (nextToken < tokens.length) {
-      return tokens[nextToken++];
+    if (nextToken >= tokens.length) {
+      return tokens.last;
     }
-    return LexerToken('', 0, 0, LexerTokenType.unknown);
+    return tokens[nextToken++];
   }
 
+  // Roll back one lexer token.
   void rollBack() {
     if (nextToken > 0) {
       nextToken--;
@@ -216,34 +223,169 @@ class Lexer {
   }
 
   bool checkIfFunction() {
-    // Implement function check logic
-    return false;
+    var name = prelexer.getMarkedSubstring();
+    return parser.functionIsDefined(name);
   }
 
   bool checkIfUnit() {
-    // Implement unit check logic
-    return false;
+    int superCount = 0;
+    while (prelexer.getNextToken() == LexerTokenType.plSuperDigit) {
+      superCount++;
+    }
+
+    prelexer.rollBack();
+
+    var name = prelexer.getMarkedSubstring();
+    if (parser.unitIsDefined(name)) {
+      return true;
+    }
+
+    while (superCount-- > 0) {
+      prelexer.rollBack();
+    }
+
+    name = prelexer.getMarkedSubstring();
+    return parser.unitIsDefined(name);
   }
 
   bool checkIfLiteralBase() {
-    // Implement literal base check logic
-    return false;
+    var name = prelexer.getMarkedSubstring();
+    return parser.literalBaseIsDefined(name.toLowerCase());
   }
 
   bool checkIfNumber() {
-    // Implement number check logic
-    return false;
+    int count = 0;
+    var text = prelexer.getMarkedSubstring();
+
+    var tmp = Number().mpSetFromString(text, numberBase);
+    if (tmp != null) {
+      return true;
+    }
+    else {
+      // Try to rollback several characters to see, if that yields any number.
+      while (text != '') {
+        tmp = Number().mpSetFromString(text, numberBase);
+        if (tmp != null) {
+          return true;
+        }
+        count++;
+        prelexer.rollBack();
+        text = prelexer.getMarkedSubstring();
+      }
+
+      // Rollback to original position.
+      while (count-- > 0) {
+        prelexer.getNextToken();
+      }
+
+      return false;
+    }
+
   }
 
+  // Insert generated token to the lexer
   LexerToken insertToken(LexerTokenType type) {
-    var token = LexerToken(prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index, type);
-    tokens.add(token);
+    var token = LexerToken(
+      prelexer.getMarkedSubstring(),
+      prelexer.markIndex,
+      prelexer.index,
+      type
+    );
+
     return token;
   }
 
+  // Generates next token from pre-lexer stream and call insert_token () to insert it at the end.
   LexerToken insertNextToken() {
-    var tokenType = prelexer.getNextToken();
-    return insertToken(tokenType);
+    // Mark start of next token
+    prelexer.setMarker();
+
+    // Ignore whitespace
+    var type = prelexer.getNextToken();
+    while (type == LexerTokenType.plSkip) {
+      prelexer.setMarker();
+      type = prelexer.getNextToken();
+    }
+
+    if (type == LexerTokenType.and || type == LexerTokenType.or || type == LexerTokenType.xor || type == LexerTokenType.not
+        || type == LexerTokenType.add || type == LexerTokenType.subtract || type == LexerTokenType.multiply || type == LexerTokenType.divide
+        || type == LexerTokenType.lFloor || type == LexerTokenType.rFloor || type == LexerTokenType.lCeiling || type == LexerTokenType.rCeiling
+        || type == LexerTokenType.root || type == LexerTokenType.root_3 || type == LexerTokenType.root_4 || type == LexerTokenType.assign
+        || type == LexerTokenType.lRBracket || type == LexerTokenType.rRBracket || type == LexerTokenType.lSBracket
+        || type == LexerTokenType.rSBracket || type == LexerTokenType.lCBracket || type == LexerTokenType.rCBracket
+        || type == LexerTokenType.abs || type == LexerTokenType.power || type == LexerTokenType.factorial || type == LexerTokenType.percentage
+        || type == LexerTokenType.argumentSeparator || type == LexerTokenType.shiftLeft || type == LexerTokenType.shiftRight
+        || type == LexerTokenType.funcDescSeparator) {
+      return insertToken(type);
+    }
+
+    // [LexerTokenType.PL_SUPER_MINUS][LexerTokenType.PL_SUPER_DIGIT]+
+    if (type == LexerTokenType.plSuperMinus) {
+      if ((type = prelexer.getNextToken()) != LexerTokenType.plSuperDigit) {
+        // ERROR: expected LexerTokenType.PL_SUP_DIGIT
+        parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+        return insertToken(LexerTokenType.unknown);
+      }
+
+      // Get all LexerTokenType.PL_SUPER_DIGITs.
+      while (prelexer.getNextToken() == LexerTokenType.plSuperDigit) {}
+      prelexer.rollBack();
+
+      return insertToken(LexerTokenType.nSupNumber);
+    }
+
+    // [LexerTokenType.PL_SUPER_DIGIT]+
+    if (type == LexerTokenType.plSuperDigit) {
+      while (prelexer.getNextToken() == LexerTokenType.plSuperDigit) {}
+      prelexer.rollBack();
+
+      return insertToken(LexerTokenType.supNumber);
+    }
+
+    // [LexerTokenType.PL_SUB_DIGIT]+
+    if (type == LexerTokenType.plSubDigit) {
+      while (prelexer.getNextToken() == LexerTokenType.plSubDigit) {}
+      prelexer.rollBack();
+
+      return insertToken(LexerTokenType.subNumber);
+    }
+
+    // [LexerTokenType.PL_FRACTION]+
+    if (type == LexerTokenType.plFraction) {
+      return insertToken(LexerTokenType.number);
+    }
+
+    if (type == LexerTokenType.plDigit) {
+      return insertDigit();
+    }
+
+    if (type == LexerTokenType.plDecimal) {
+      return insertDecimal();
+    }
+
+    if (type == LexerTokenType.plHex) {
+      return insertHex();
+    }
+
+    if (type == LexerTokenType.plLetter) {
+      return insertLetter();
+    }
+
+    if (type == LexerTokenType.plDegree) {
+      type = prelexer.getNextToken();
+      if ((type == LexerTokenType.plHex || type == LexerTokenType.plLetter) && checkIfUnit()) {
+        return insertToken(LexerTokenType.unit);
+      }
+    }
+
+    if (type == LexerTokenType.plEOS) {
+      return insertToken(LexerTokenType.plEOS);
+    }
+
+    // ERROR: Unexpected token
+    parser.setError(ErrorCode.invalid, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+
+    return insertToken(LexerTokenType.unknown);
   }
 
   LexerToken insertDigit() {
