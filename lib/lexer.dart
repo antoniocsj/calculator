@@ -389,8 +389,75 @@ class Lexer {
   }
 
   LexerToken insertDigit() {
-    // Implement digit insertion logic
-    return insertToken(LexerTokenType.plDigit);
+    var type = prelexer.getNextToken();
+    while (type == LexerTokenType.plDigit) {
+      type = prelexer.getNextToken();
+    }
+
+    if (type == LexerTokenType.plFraction) {
+      return insertToken(LexerTokenType.number);
+    }
+    else if (type == LexerTokenType.plSubDigit) {
+      while (prelexer.getNextToken() == LexerTokenType.plSubDigit) {}
+      prelexer.rollBack();
+      return insertToken(LexerTokenType.number);
+    }
+    else if (type == LexerTokenType.plDegree) {
+      type = prelexer.getNextToken();
+      if (type == LexerTokenType.plDigit) {
+        while ((type = prelexer.getNextToken()) == LexerTokenType.plDigit) {}
+        if (type == LexerTokenType.plDecimal) {
+          return insertAngleNumDM();
+        }
+        else if (type == LexerTokenType.plMinute) {
+          type = prelexer.getNextToken();
+          if (type == LexerTokenType.plDigit) {
+            while ((type = prelexer.getNextToken()) == LexerTokenType.plDigit) {}
+            if (type == LexerTokenType.plDecimal) {
+              return insertAngleNumDMS();
+            }
+            else if (type == LexerTokenType.plSecond) {
+              return insertToken(LexerTokenType.number);
+            }
+            else {
+              // ERROR: expected LexerTokenType.PL_SECOND
+              parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+              return insertToken(LexerTokenType.unknown);
+            }
+          }
+          else if (type == LexerTokenType.plDecimal) {
+            return insertAngleNumDMS();
+          }
+          else {
+            prelexer.rollBack();
+            return insertToken(LexerTokenType.number);
+          }
+        }
+        else {
+          // ERROR: expected LexerTokenType.PL_MINUTE | LexerTokenType.PL_DIGIT
+          parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+          return insertToken(LexerTokenType.unknown);
+        }
+      }
+      else if (type == LexerTokenType.plDecimal) {
+        return insertAngleNumDM();
+      }
+      else {
+        return insertToken(LexerTokenType.number);
+      }
+    }
+    else if (type == LexerTokenType.plDecimal) {
+      return insertDecimal();
+    }
+    else if (checkIfLiteralBase()) {
+      return insertHex();
+    }
+    else if (type == LexerTokenType.plHex) {
+      return insertHexDec();
+    }
+    else {
+      return insertToken(LexerTokenType.number);
+    }
   }
 
   LexerToken insertAngleNumDM() {
