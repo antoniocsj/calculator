@@ -461,37 +461,347 @@ class Lexer {
   }
 
   LexerToken insertAngleNumDM() {
-    // Implement angle number DM insertion logic
-    return insertToken(LexerTokenType.plDegree);
+    var type = prelexer.getNextToken();
+    if (type != LexerTokenType.plDigit) {
+      // ERROR: expected LexerTokenType.PL_DIGIT
+      parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+      return insertToken(LexerTokenType.unknown);
+    }
+
+    while (prelexer.getNextToken() == LexerTokenType.plDigit) {}
+    type = prelexer.getNextToken();
+
+    if (type == LexerTokenType.plMinute) {
+      return insertToken(LexerTokenType.number);
+    }
+    else {
+      // ERROR: expected LexerTokenType.PL_MINUTE
+      parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+      return insertToken(LexerTokenType.unknown);
+    }
   }
 
   LexerToken insertAngleNumDMS() {
-    // Implement angle number DMS insertion logic
-    return insertToken(LexerTokenType.plMinute);
+    var type = prelexer.getNextToken();
+    if (type != LexerTokenType.plDigit) {
+      // ERROR: expected LexerTokenType.PL_DIGIT
+      parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+      return insertToken(LexerTokenType.unknown);
+    }
+
+    while (prelexer.getNextToken() == LexerTokenType.plDigit) {}
+    if (prelexer.getNextToken() == LexerTokenType.plSecond) {
+      return insertToken(LexerTokenType.number);
+    }
+    else {
+      // ERROR: expected LexerTokenType.PL_SECOND
+      parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+      return insertToken(LexerTokenType.unknown);
+    }
+
   }
 
   LexerToken insertDecimal() {
-    // Implement decimal insertion logic
-    return insertToken(LexerTokenType.plDecimal);
+    // Code in Vala:
+    // var type = prelexer.get_next_token ();
+    // if (type == LexerTokenType.PL_DIGIT)
+    // {
+    //   while ((type = prelexer.get_next_token ()) == LexerTokenType.PL_DIGIT);
+    //   if (type == LexerTokenType.PL_DEGREE)
+    //     return insert_token (LexerTokenType.NUMBER);
+    //   else if (type == LexerTokenType.PL_HEX)
+    //     return insert_decimal_hex ();
+    //   else if (type == LexerTokenType.PL_SUB_DIGIT)
+    //   {
+    //     while (prelexer.get_next_token () == LexerTokenType.PL_SUB_DIGIT);
+    //     prelexer.roll_back ();
+    //     return insert_token (LexerTokenType.NUMBER);
+    //   }
+    //   else
+    //   {
+    //     prelexer.roll_back ();
+    //     return insert_token (LexerTokenType.NUMBER);
+    //   }
+    // }
+    // else if (type == LexerTokenType.PL_HEX)
+    //   return insert_decimal_hex ();
+    // else
+    // {
+    //   /* ERROR: expected LexerTokenType.PL_DIGIT | LexerTokenType.PL_HEX */
+    //   parser.set_error (ErrorCode.MP, prelexer.get_marked_substring (), prelexer.mark_index, prelexer.index);
+    //   return insert_token (LexerTokenType.UNKNOWN);
+    // }
+
+    // The equivalent Dart code is:
+    var type = prelexer.getNextToken();
+    if (type == LexerTokenType.plDigit) {
+      while ((type = prelexer.getNextToken()) == LexerTokenType.plDigit) {}
+      if (type == LexerTokenType.plDegree) {
+        return insertToken(LexerTokenType.number);
+      }
+      else if (type == LexerTokenType.plHex) {
+        return insertDecimalHex();
+      }
+      else if (type == LexerTokenType.plSubDigit) {
+        while (prelexer.getNextToken() == LexerTokenType.plSubDigit) {}
+        prelexer.rollBack();
+        return insertToken(LexerTokenType.number);
+      }
+      else {
+        prelexer.rollBack();
+        return insertToken(LexerTokenType.number);
+      }
+    }
+    else if (type == LexerTokenType.plHex) {
+      return insertDecimalHex();
+    }
+    else {
+      // ERROR: expected LexerTokenType.PL_DIGIT | LexerTokenType.PL_HEX
+      parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+      return insertToken(LexerTokenType.unknown);
+    }
   }
 
   LexerToken insertHex() {
-    // Implement hex insertion logic
-    return insertToken(LexerTokenType.plHex);
+    // Code in Vala:
+    // var type = prelexer.get_next_token ();
+    // while (type == LexerTokenType.PL_HEX)
+    //   type = prelexer.get_next_token ();
+    //
+    // if (type == LexerTokenType.PL_DIGIT)
+    //   return insert_hex_dec ();
+    // else if (type == LexerTokenType.PL_DECIMAL)
+    //   return insert_decimal_hex ();
+    // else if (type == LexerTokenType.PL_SUB_DIGIT)
+    // {
+    //   while (prelexer.get_next_token () == LexerTokenType.PL_SUB_DIGIT);
+    //   prelexer.roll_back ();
+    //
+    //   if (check_if_number ())
+    //     return insert_token (LexerTokenType.NUMBER);
+    //   else
+    //   {
+    //     if (check_if_function ())
+    //       return insert_token (LexerTokenType.FUNCTION);
+    //     else if (check_if_unit ())
+    //       return insert_token (LexerTokenType.UNIT);
+    //     else
+    //       return insert_token (LexerTokenType.VARIABLE);
+    //   }
+    // }
+    // else if (type == LexerTokenType.PL_LETTER)
+    //   return insert_letter ();
+    // else
+    // {
+    //   prelexer.roll_back ();
+    //   if (check_if_number ())
+    //     return insert_token (LexerTokenType.NUMBER);
+    //   else
+    //   {
+    //     if (check_if_function ())
+    //       return insert_token (LexerTokenType.FUNCTION);
+    //     else if (check_if_unit ())
+    //       return insert_token (LexerTokenType.UNIT);
+    //     else
+    //       return insert_token (LexerTokenType.VARIABLE);
+    //   }
+    // }
+
+    // The equivalent Dart code is:
+    var type = prelexer.getNextToken();
+    while (type == LexerTokenType.plHex) {
+      type = prelexer.getNextToken();
+    }
+
+    if (type == LexerTokenType.plDigit) {
+      return insertHexDec();
+    }
+    else if (type == LexerTokenType.plDecimal) {
+      return insertDecimalHex();
+    }
+    else if (type == LexerTokenType.plSubDigit) {
+      while (prelexer.getNextToken() == LexerTokenType.plSubDigit) {}
+      prelexer.rollBack();
+
+      if (checkIfNumber()) {
+        return insertToken(LexerTokenType.number);
+      }
+      else {
+        if (checkIfFunction()) {
+          return insertToken(LexerTokenType.function);
+        }
+        else if (checkIfUnit()) {
+          return insertToken(LexerTokenType.unit);
+        }
+        else {
+          return insertToken(LexerTokenType.variable);
+        }
+      }
+    }
+    else if (type == LexerTokenType.plLetter) {
+      return insertLetter();
+    }
+    else {
+      prelexer.rollBack();
+      if (checkIfNumber()) {
+        return insertToken(LexerTokenType.number);
+      }
+      else {
+        if (checkIfFunction()) {
+          return insertToken(LexerTokenType.function);
+        }
+        else if (checkIfUnit()) {
+          return insertToken(LexerTokenType.unit);
+        }
+        else {
+          return insertToken(LexerTokenType.variable);
+        }
+      }
+    }
   }
 
   LexerToken insertHexDec() {
-    // Implement hex decimal insertion logic
-    return insertToken(LexerTokenType.plHex);
+    // Code in Vala:
+    // var type = prelexer.get_next_token ();
+    // while (type == LexerTokenType.PL_DIGIT || type == LexerTokenType.PL_HEX)
+    //   type = prelexer.get_next_token ();
+    //
+    // if (type == LexerTokenType.PL_DECIMAL)
+    //   return insert_decimal_hex ();
+    // else if (type == LexerTokenType.PL_SUB_DIGIT)
+    // {
+    //   while (prelexer.get_next_token () == LexerTokenType.PL_SUB_DIGIT);
+    //   prelexer.roll_back ();
+    //   return insert_token (LexerTokenType.NUMBER);
+    // }
+    // else
+    // {
+    //   if (check_if_number ())
+    //     return insert_token (LexerTokenType.NUMBER);
+    //   /* ERROR: expected LexerTokenType.PL_DECIMAL | LexerTokenType.PL_DIGIT | LexerTokenType.PL_HEX */
+    //   parser.set_error (ErrorCode.MP, prelexer.get_marked_substring (), prelexer.mark_index, prelexer.index);
+    //   return insert_token (LexerTokenType.UNKNOWN);
+    // }
+
+    // The equivalent Dart code is:
+    var type = prelexer.getNextToken();
+    while (type == LexerTokenType.plDigit || type == LexerTokenType.plHex) {
+      type = prelexer.getNextToken();
+    }
+
+    if (type == LexerTokenType.plDecimal) {
+      return insertDecimalHex();
+    }
+    else if (type == LexerTokenType.plSubDigit) {
+      while (prelexer.getNextToken() == LexerTokenType.plSubDigit) {}
+      prelexer.rollBack();
+      return insertToken(LexerTokenType.number);
+    }
+    else {
+      if (checkIfNumber()) {
+        return insertToken(LexerTokenType.number);
+      }
+      // ERROR: expected LexerTokenType.PL_DECIMAL | LexerTokenType.PL_DIGIT | LexerTokenType.PL_HEX
+      parser.setError(ErrorCode.mp, prelexer.getMarkedSubstring(), prelexer.markIndex, prelexer.index);
+      return insertToken(LexerTokenType.unknown);
+    }
   }
 
   LexerToken insertDecimalHex() {
-    // Implement decimal hex insertion logic
-    return insertToken(LexerTokenType.plDecimal);
+    // Make up of digits and hexadecimal characters
+    var type = prelexer.getNextToken();
+    while (type == LexerTokenType.plDigit || type == LexerTokenType.plHex) {
+      type = prelexer.getNextToken();
+    }
+
+    // Allow a subdigit suffix
+    while (type == LexerTokenType.plSubDigit) {
+      type = prelexer.getNextToken();
+    }
+
+    prelexer.rollBack();
+
+    return insertToken(LexerTokenType.number);
   }
 
   LexerToken insertLetter() {
-    // Implement letter insertion logic
-    return insertToken(LexerTokenType.plLetter);
+    // Code in Vala:
+    // /* Get string of letters */
+    // var type = prelexer.get_next_token ();
+    // while (type == LexerTokenType.PL_LETTER || type == LexerTokenType.PL_HEX)
+    //   type = prelexer.get_next_token ();
+    //
+    // /* Allow a subdigit suffix */
+    // while (type == LexerTokenType.PL_SUB_DIGIT)
+    //   type = prelexer.get_next_token ();
+    //
+    // prelexer.roll_back ();
+    //
+    // var name = prelexer.get_marked_substring ().down ();
+    // if (name == "mod")
+    //   return insert_token (LexerTokenType.MOD);
+    // if (name == "and")
+    //   return insert_token (LexerTokenType.AND);
+    // if (name == "\\cdot")
+    //   return insert_token (LexerTokenType.MULTIPLY);
+    // if (name == "or")
+    //   return insert_token (LexerTokenType.OR);
+    // if (name == "xor")
+    //   return insert_token (LexerTokenType.XOR);
+    // if (name == "not")
+    //   return insert_token (LexerTokenType.NOT);
+    // // Translators: conversion keyword, used e.g. 1 EUR in USD, 1 EUR to USD
+    // if (name == _("in") || name == _("to"))
+    //   return insert_token (LexerTokenType.IN);
+    // if (check_if_function ())
+    //   return insert_token (LexerTokenType.FUNCTION);
+    // if (check_if_unit ())
+    //   return insert_token (LexerTokenType.UNIT);
+    // else
+    //   return insert_token (LexerTokenType.VARIABLE);
+
+    // The equivalent Dart code is:
+    var type = prelexer.getNextToken();
+    while (type == LexerTokenType.plLetter || type == LexerTokenType.plHex) {
+      type = prelexer.getNextToken();
+    }
+
+    while (type == LexerTokenType.plSubDigit) {
+      type = prelexer.getNextToken();
+    }
+
+    prelexer.rollBack();
+
+    var name = prelexer.getMarkedSubstring().toLowerCase();
+    if (name == 'mod') {
+      return insertToken(LexerTokenType.mod);
+    }
+    if (name == 'and') {
+      return insertToken(LexerTokenType.and);
+    }
+    if (name == '\\cdot') {
+      return insertToken(LexerTokenType.multiply);
+    }
+    if (name == 'or') {
+      return insertToken(LexerTokenType.or);
+    }
+    if (name == 'xor') {
+      return insertToken(LexerTokenType.xor);
+    }
+    if (name == 'not') {
+      return insertToken(LexerTokenType.not);
+    }
+    if (name == 'in' || name == 'to') {
+      return insertToken(LexerTokenType.in_);
+    }
+    if (checkIfFunction()) {
+      return insertToken(LexerTokenType.function);
+    }
+    if (checkIfUnit()) {
+      return insertToken(LexerTokenType.unit);
+    }
+    else {
+      return insertToken(LexerTokenType.variable);
+    }
   }
 }
