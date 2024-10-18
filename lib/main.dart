@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:calculator/mpfr.dart';
-import 'package:calculator/mpc.dart';
-import 'dart:async';
+import 'package:calculator/calccmd.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -37,66 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   String resultado = '';
   String resultado2 = '';
 
-  void test_1() {
-    Complex x = Complex.fromDouble(-3.6, 2.0);
-
-    print('precision: ${x.precision}');
-
-    Real realPart = x.getReal();
-    print('real: ${realPart.getDouble()}');
-    realPart.dispose();
-
-    Real imaginaryPart = x.getImaginary();
-    print('imag: ${imaginaryPart.getDouble()}');
-    imaginaryPart.dispose();
-
-    print('complex: ${x.getString()}');
-
-    print('real: ${x.getRealDouble()}');
-    print('imag: ${x.getImaginaryDouble()}');
-
-    x.dispose();
-  }
-
-  void run_for() {
-    for (int i = 0; i < 5000; i++) {
-      // Real x = Real.fromDouble(3.6, 1000);
-      Real x = Real.fromString('3.6', 10, 100000);
-      // print('x: ${x.getDouble()}');
-      // print('x: ${x.getString1()}');
-      // await Future.delayed(const Duration(milliseconds: 1));
-      // x.dispose();
-    }
-  }
-
-  void test_2() async {
-    while (true) {
-      // Real x = Real.fromDouble(3.6, 1000);
-      Real x = Real.fromString('3.6', 10, 100000);
-      Complex y = Complex.fromDouble(1.8, 2.0, 100000);
-      await Future.delayed(const Duration(milliseconds: 100));
-      // x.dispose();
-    }
-
-    // Real x = Real.fromDouble(3.6, 64);
-    // print('x: ${x.getDouble()}');
-    // // x.dispose();
-  }
-
-  void test_3() {
-    for (int i=0; i<1000; i++) {
-      // Real x = Real.fromDouble(3.6, 1000);
-      Real x = Real.fromString('3.6', 10, 10);
-      // print('x: ${x.getDouble()}');
-      // print('x: ${x.getString1()}');
-      // x.dispose();
-    }
-
-    // Real x = Real.fromDouble(3.6, 64);
-    // print('x: ${x.getDouble()}');
-    // // x.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,7 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  test_1();
+                  // test_1();
+                  testCases1();
                 });
               },
               child: const Text('Calcular'),
